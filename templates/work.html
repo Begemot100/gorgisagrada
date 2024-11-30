@@ -35,7 +35,7 @@
                     </button>
                     <div id="dropdown-menu" class="dropdown-menu hidden">
                         <ul>
-                            <li>ChooseAll</li>
+                            <li id="choose-all-btn">ChooseAll</li> <!-- Add an ID for targeting -->
                             <li>Editar</li>
                             <li>Exportar a Excel</li>
                             <li>Exportar a PDF</li>
@@ -51,7 +51,7 @@
                 <div class="employee-section">
                     <!-- Rounded Checkbox -->
                     <div class="checkbox-container">
-                        <input type="checkbox" class="round-checkbox" />
+                        <input type="checkbox" class="round-checkbox employee-checkbox" />
                     </div>
 
                     <!-- Employee Info -->
@@ -113,6 +113,8 @@
 
     <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/dotmodal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/work.js') }}"></script>
+
     <script>
         console.log("JavaScript file loaded successfully!");
     </script>

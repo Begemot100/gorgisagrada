@@ -229,4 +229,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-f
+// Отслеживаем, выбраны ли все чекбоксы
+let allSelected = false;
+
+// Функция переключения всех чекбоксов
+function toggleAllCheckboxes() {
+    const checkboxes = document.querySelectorAll('.employee-checkbox'); // Ищем все чекбоксы
+    console.log('Количество чекбоксов найдено:', checkboxes.length);
+
+    // Переключаем состояние каждого чекбокса
+    checkboxes.forEach((checkbox) => {
+        checkbox.checked = !allSelected; // Меняем состояние чекбокса
+        console.log('Состояние чекбокса:', checkbox.checked); // Логируем состояние
+    });
+
+    allSelected = !allSelected; // Меняем флаг
+    console.log(allSelected ? 'Все выбраны' : 'Все сняты');
+}
+
+// Вешаем слушатель на кнопку "ChooseAll" после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+    const chooseAllButton = document.getElementById('choose-all-btn');
+    if (chooseAllButton) {
+        chooseAllButton.addEventListener('click', toggleAllCheckboxes);
+        console.log('Кнопка "ChooseAll" найдена, событие привязано');
+    } else {
+        console.error('Кнопка "ChooseAll" не найдена');
+    }
+});
