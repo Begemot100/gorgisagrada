@@ -35,10 +35,10 @@
                     </button>
                     <div id="dropdown-menu" class="dropdown-menu hidden">
                         <ul>
-                            <li id="choose-all-btn">ChooseAll</li> <!-- Add an ID for targeting -->
-                            <li>Editar</li>
-                            <li>Exportar a Excel</li>
-                            <li>Exportar a PDF</li>
+                            <li id="choose-all-btn">ChooseAll</li>
+                            <li id="edit-btn">Editar</li>
+                            <li id="export-excel-btn">Exportar a Excel</li>
+                            <li id="random-btn">Random</li>
                             <li class="delete">Eliminar</li>
                         </ul>
                     </div>
@@ -51,7 +51,7 @@
                 <div class="employee-section">
                     <!-- Rounded Checkbox -->
                     <div class="checkbox-container">
-                        <input type="checkbox" class="round-checkbox employee-checkbox" />
+                        <input type="checkbox" class="round-checkbox employee-checkbox" id="employee_{{ employee_data.employee.id }}" />
                     </div>
 
                     <!-- Employee Info -->
@@ -59,9 +59,10 @@
                         <h2>{{ employee_data.employee.full_name }} - {{ employee_data.employee.position }}</h2>
                     </div>
 
-                    <!-- Work Logs and Summary Panel -->
-                    <div class="work-logs-container">
-                        <div class="work-logs">
+                    <!-- Work Logs and Summary -->
+                    <div class="logs-summary-container">
+                        <!-- Work Logs -->
+                        <div class="work-logs-container" id="logs-container-{{ employee_data.employee.id }}">
                             <table class="work-logs-table">
                                 <thead>
                                     <tr>
@@ -70,11 +71,12 @@
                                         <th>Salida</th>
                                         <th>Total</th>
                                         <th>Vacaciones</th>
+                                        <th class="checkbox-column hidden">Выбрать</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for log in employee_data.work_logs %}
-                                    <tr>
+                                    <tr class="log-row-{{ employee_data.employee.id }}">
                                         <td>{{ log.log_date.strftime('%d/%m/%Y') }}</td>
                                         <td>{{ log.check_in_time.strftime('%H:%M') if log.check_in_time else '--:--' }}</td>
                                         <td>{{ log.check_out_time.strftime('%H:%M') if log.check_out_time else '--:--' }}</td>
@@ -87,13 +89,22 @@
                                                 <option value="weekend" {% if log.holidays == 'Weekend' %}selected{% endif %}>Fin de semana</option>
                                             </select>
                                         </td>
+                                        <td class="checkbox-cell hidden">
+                                            <input type="checkbox" class="date-checkbox" id="log-{{ log.id }}">
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons hidden" id="action-buttons-{{ employee_data.employee.id }}">
+                                <button class="select-all-btn" onclick="selectAllEmployeeCheckboxes('{{ employee_data.employee.id }}')">Выбрать все</button>
+                                <button class="new-schedule-btn" onclick="openNewScheduleModal('{{ employee_data.employee.id }}')">Новое расписание</button>
+                            </div>
                         </div>
 
-                        <!-- Summary Panel -->
+                        <!-- Summary Panel (Always Visible) -->
                         <div class="summary-panel">
                             <h3>Summary</h3>
                             <p><strong>Total hours:</strong> <span>{{ employee_data.total_hours }}</span></p>
@@ -111,12 +122,65 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/dotmodal.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/work.js') }}"></script>
 
+    <!-- JavaScript -->
     <script>
-        console.log("JavaScript file loaded successfully!");
+        document.addEventListener('DOMContentLoaded', () => {
+            const randomBtn = document.getElementById('random-btn');
+            const employeeCheckboxes = document.querySelectorAll('.round-checkbox');
+
+            if (randomBtn && employeeCheckboxes.length) {
+                randomBtn.addEventListener('click', () => {
+                    employeeCheckboxes.forEach((checkbox) => {
+                        if (checkbox.checked) {
+                            const employeeId = checkbox.id.replace('employee_', '');
+                            toggleRandomForEmployee(employeeId, true);
+                        } else {
+                            const employeeId = checkbox.id.replace('employee_', '');
+                            toggleRandomForEmployee(employeeId, false);
+                        }
+                    });
+                });
+            } else {
+                console.error("Кнопка 'Random' или круглые чекбоксы не найдены.");
+            }
+        });
+
+        function toggleRandomForEmployee(employeeId, state) {
+            const logsContainer = document.getElementById(`logs-container-${employeeId}`);
+            const actionButtons = document.getElementById(`action-buttons-${employeeId}`);
+
+            if (!logsContainer || !actionButtons) {
+                console.error(`Логи или кнопки для сотрудника с ID employee_${employeeId} не найдены.`);
+                return;
+            }
+
+            const checkboxCells = logsContainer.querySelectorAll('.checkbox-cell');
+
+            if (state) {
+                checkboxCells.forEach(cell => cell.classList.remove('hidden'));
+                actionButtons.classList.remove('hidden');
+            } else {
+                checkboxCells.forEach(cell => cell.classList.add('hidden'));
+                actionButtons.classList.add('hidden');
+            }
+        }
+
+        function selectAllEmployeeCheckboxes(employeeId) {
+            const checkboxes = document.querySelectorAll(`#logs-container-${employeeId} .date-checkbox`);
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = !allChecked;
+            });
+        }
+
+        function openNewScheduleModal(employeeId) {
+            alert(`Открыть модальное окно для сотрудника с ID: ${employeeId}`);
+        }
     </script>
+    <script src="{{ url_for('static', filename='js/work.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dotmodal.js') }}"></script>
+
 </body>
 </html>

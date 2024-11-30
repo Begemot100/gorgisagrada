@@ -213,3 +213,51 @@ body {
     background-color: #FC8C86;
     border-color: #FC8C86;
 }
+.checkbox-column,
+.checkbox-cell {
+    text-align: center;
+    width: 50px;
+}
+.action-buttons {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.action-buttons.hidden {
+    display: none;
+}
+
+.action-buttons button {
+    margin: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f8b400;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+.action-buttons button:hover {
+    background-color: #e69a00;
+}
+.logs-summary-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Чтобы блоки выравнивались по верхнему краю */
+    gap: 20px; /* Расстояние между таблицей и summary */
+}
+
+.work-logs-container {
+    flex: 3; /* Таблица занимает больше места */
+}
+
+.summary-panel {
+    flex: 1; /* Summary занимает меньше места */
+    border: 1px solid #ddd; /* Рамка для наглядности */
+    padding: 10px;
+    background-color: #f9f9f9; /* Светлый фон */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+}
