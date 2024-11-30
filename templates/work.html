@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Logs</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/work.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/random.css') }}">
+
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='css/dotmodal.css') }}">-->
 </head>
 <body>
     <div class="page-container">
@@ -100,7 +103,7 @@
                             <!-- Action Buttons -->
                             <div class="action-buttons hidden" id="action-buttons-{{ employee_data.employee.id }}">
                                 <button class="select-all-btn" onclick="selectAllEmployeeCheckboxes('{{ employee_data.employee.id }}')">Выбрать все</button>
-                                <button class="new-schedule-btn" onclick="openNewScheduleModal('{{ employee_data.employee.id }}')">Новое расписание</button>
+                                <button class="new-schedule-btn" onclick="openNewScheduleModal()">Новое расписание</button>
                             </div>
                         </div>
 
@@ -175,12 +178,16 @@
             });
         }
 
-        function openNewScheduleModal(employeeId) {
-            alert(`Открыть модальное окно для сотрудника с ID: ${employeeId}`);
-        }
+<!--        function openNewScheduleModal(employeeId) {-->
+<!--            alert(`Открыть модальное окно для сотрудника с ID: ${employeeId}`);-->
+<!--        }-->
     </script>
     <script src="{{ url_for('static', filename='js/work.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dotmodal.js') }}"></script>
+        <div id="newscheduleModal" class="modal" style="display: none;">
+            {% include 'newscheduleModal.html' %}
+        </div>
+
 
 </body>
 </html>

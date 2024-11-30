@@ -463,6 +463,31 @@ def format_hours(value):
     minutes = int((value - hours) * 60)
     return f'{hours}h {minutes}min'
 
+@app.route('/update_log_time/<int:log_id>', methods=['POST'])
+def update_log_time(log_id):
+    data = request.json
+    check_in_time = data.get('check_in_time')  # формат 'HH:MM'
+    check_out_time = data.get('check_out_time')  # формат 'HH:MM'
+
+    # Найти лог по ID
+    log = WorkLog.query.get(log_id)
+    if not log:
+        return jsonify({'success': False, 'message': 'Log not found'}), 404
+
+    # Преобразование времени в datetime
+    if check_in_time:
+        log.check_in_time = datetime.combine(date.today(), datetime.strptime(check_in_time, '%H:%M').time())
+    if check_out_time:
+        log.check_out_time = datetime.combine(date.today(), datetime.strptime(check_out_time, '%H:%M').time())
+
+    # Сохранить изменения
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Log updated successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 
 if __name__ == '__main__':
 

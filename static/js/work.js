@@ -179,10 +179,10 @@ function closeModal() {
 }
 
 // Инициализация
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('filterButton').addEventListener('click', resetFilter);
-    document.getElementById('customRangePicker').addEventListener('click', applyCustomRange);
-});
+//document.addEventListener('DOMContentLoaded', () => {
+//    document.getElementById('filterButton').addEventListener('click', resetFilter);
+//    document.getElementById('customRangePicker').addEventListener('click', applyCustomRange);
+//});
 
 document.addEventListener('DOMContentLoaded', function () {
     // Select all dropdown elements with the name "holiday_type"
@@ -241,3 +241,81 @@ document.addEventListener('DOMContentLoaded', function () {
 // Отслеживаем, выбраны ли все чекбоксы
 let randomState = false; // Отслеживает текущее состояние чекбоксов
 
+function applyRandomSchedule() {
+    const checkInStart = document.getElementById('checkInStart').value;
+    const checkInEnd = document.getElementById('checkInEnd').value;
+    const checkOutStart = document.getElementById('checkOutStart').value;
+    const checkOutEnd = document.getElementById('checkOutEnd').value;
+
+    if (!checkInStart || !checkInEnd || !checkOutStart || !checkOutEnd) {
+        alert("Заполните все диапазоны времени!");
+        return;
+    }
+
+    const selectedWorkLogs = document.querySelectorAll('.date-checkbox:checked');
+
+    if (selectedWorkLogs.length === 0) {
+        alert("Выберите ворклоги для применения расписания.");
+        return;
+    }
+
+    selectedWorkLogs.forEach((checkbox) => {
+        const logRow = checkbox.closest('tr');
+        const checkInTime = logRow.querySelector('.check-in-time');
+        const checkOutTime = logRow.querySelector('.check-out-time');
+
+        const randomCheckIn = getRandomTime(checkInStart, checkInEnd);
+        const randomCheckOut = getRandomTime(checkOutStart, checkOutEnd);
+
+        if (checkInTime) checkInTime.textContent = randomCheckIn;
+        if (checkOutTime) checkOutTime.textContent = randomCheckOut;
+
+        // Отправка изменений на сервер (опционально)
+        const logId = checkbox.id.replace('log-', '');
+        fetch(`/update_log_time/${logId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                check_in_time: randomCheckIn,
+                check_out_time: randomCheckOut,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    console.log(`Ворклог ${logId} обновлён.`);
+                } else {
+                    console.error(`Ошибка обновления ворклога ${logId}.`);
+                }
+            })
+            .catch((error) => console.error('Ошибка при обновлении ворклога:', error));
+    });
+
+    // Закрытие модального окна после применения
+    closeNewScheduleModal();
+    alert("Расписание успешно применено!");
+}
+
+// Генерация случайного времени в заданном диапазоне
+function getRandomTime(start, end) {
+    const [startHours, startMinutes] = start.split(':').map(Number);
+    const [endHours, endMinutes] = end.split(':').map(Number);
+
+    const startTime = startHours * 60 + startMinutes;
+    const endTime = endHours * 60 + endMinutes;
+
+    const randomTime = Math.floor(Math.random() * (endTime - startTime + 1)) + startTime;
+
+    const randomHours = Math.floor(randomTime / 60).toString().padStart(2, '0');
+    const randomMinutes = (randomTime % 60).toString().padStart(2, '0');
+
+    return `${randomHours}:${randomMinutes}`;
+}
+fetch(`/update_log_time/${logId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        check_in_time: randomCheckIn,
+        check_out_time: randomCheckOut,
+    }),
+})
