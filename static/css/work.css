@@ -1,16 +1,18 @@
 body {
     font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
 }
 
 .page-container {
     display: flex;
     height: 100vh;
-    font-family: Arial, sans-serif;
 }
 
 .sidebar {
     width: 100px;
-    background-color: #fff; /* Белый фон для бокового блока */
+    background-color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -36,8 +38,14 @@ body {
 
 .filter-bar {
     display: flex;
-    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
+}
+
+.left-buttons {
+    display: flex;
+    gap: 10px; /* Space between the red buttons */
 }
 
 .filter-btn {
@@ -53,6 +61,26 @@ body {
     transition: background-color 0.3s ease;
 }
 
+.filter-btn:hover {
+    background-color: #FF7B76;
+}
+
+.right-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.ellipsis-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.ellipsis-btn img {
+    width: 24px;
+    height: 24px;
+}
+
 .main-container {
     display: flex;
     flex-direction: column;
@@ -64,7 +92,7 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     padding: 20px;
-    background-color: #fff; /* Белый фон блока */
+    background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
@@ -95,13 +123,57 @@ body {
 }
 
 .work-logs-table td {
-    border: none; /* Убираем полоски из таблицы */
+    border: none;
 }
 
 .summary-panel {
     flex-basis: 15%;
     padding: 20px;
-    background-color: #fff; /* Белый фон для блока саммари */
+    background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.dropdown-menu {
+    position: absolute;
+    top: 40px; /* Adjust based on the ellipsis button's position */
+    right: 10px; /* Align to the right of the ellipsis button */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+}
+
+.hidden {
+    display: none;
+}
+
+.dropdown-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu li {
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu li:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-menu .delete {
+    color: #FC8C86;
+    font-weight: bold;
+}
+
+.dropdown-menu .delete:hover {
+    background-color: rgba(252, 140, 134, 0.1);
 }

@@ -24,9 +24,25 @@
 
             <!-- Filters -->
             <div class="filter-bar">
-                <button class="filter-btn">Hoy</button>
-                <button class="filter-btn">Grupo</button>
-                <button class="filter-btn" onclick="resetFilter()">Restablecer filtro</button>
+                <div class="left-buttons">
+                    <button class="filter-btn">Hoy</button>
+                    <button class="filter-btn">Grupo</button>
+                    <button class="filter-btn" onclick="resetFilter()">Restablecer filtro</button>
+                </div>
+                <div class="right-buttons">
+                    <button class="ellipsis-btn" onclick="toggleDropdown()">
+                        <img src="{{ url_for('static', filename='images/img_3.png') }}" alt="Ellipsis Icon">
+                    </button>
+                    <div id="dropdown-menu" class="dropdown-menu hidden">
+                        <ul>
+                            <li>Editar</li>
+                            <li>Editar</li>
+                            <li>Exportar a Excel</li>
+                            <li>Exportar a PDF</li>
+                            <li class="delete">Eliminar</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <!-- Main Container -->
@@ -87,5 +103,12 @@
             </div>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/dotmodal.js') }}"></script>
+<!-- Add this in the HTML -->
+    <script>
+        console.log("JavaScript file loaded successfully!");
+    </script>
+
+
 </body>
 </html>
