@@ -87,23 +87,30 @@ body {
     gap: 20px;
 }
 
+/* Employee Section */
 .employee-section {
+    position: relative;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    flex-direction: column;
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
+.work-logs-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
 .employee-header {
     flex-basis: 20%;
     margin-right: 20px;
 }
 
 .work-logs {
-    flex: 1;
+    flex: 3;
     margin-right: 20px;
 }
 
@@ -127,7 +134,7 @@ body {
 }
 
 .summary-panel {
-    flex-basis: 15%;
+    flex: 1; /* Smaller width compared to logs */
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
@@ -176,4 +183,33 @@ body {
 
 .dropdown-menu .delete:hover {
     background-color: rgba(252, 140, 134, 0.1);
+}
+.checkbox-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+/* Rounded Checkbox */
+.round-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    appearance: none; /* Removes default styling */
+    outline: none;
+    background-color: white;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Checkbox Hover and Checked State */
+.round-checkbox:hover {
+    border-color: #FC8C86;
+}
+
+.round-checkbox:checked {
+    background-color: #FC8C86;
+    border-color: #FC8C86;
 }
