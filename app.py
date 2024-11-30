@@ -424,6 +424,45 @@ def board():
     return render_template('board.html', dashboard_data=dashboard_data, current_date=today)
 
 
+@app.route('/work')
+def work():
+    employees = Employee.query.all()
+    employee_logs = []
+
+    for employee in employees:
+        logs = WorkLog.query.filter_by(employee_id=employee.id).all()
+        employee_logs.append({
+            'employee': employee,
+            'work_logs': logs
+        })
+
+    today = datetime.now().date()
+
+    return render_template("work.html", employees=employee_logs, today=today)
+
+
+@app.route('/update_holiday_status', methods=['POST'])
+def update_holiday_status():
+    log_id = request.form.get('log_id')
+    new_status = request.form.get('new_status')
+
+    work_log = WorkLog.query.get(log_id)
+    if not work_log:
+        return jsonify({'error': 'Log not found'}), 404
+
+    work_log.holidays = new_status
+    db.session.commit()
+
+    return jsonify({'message': 'Holiday status updated successfully!'}), 200
+
+@app.template_filter('format_hours')
+def format_hours(value):
+    if value is None:
+        return '0h 0min'
+    hours = int(value)
+    minutes = int((value - hours) * 60)
+    return f'{hours}h {minutes}min'
+
 
 if __name__ == '__main__':
 

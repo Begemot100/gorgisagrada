@@ -1,0 +1,14 @@
+<div class="ellipsis-container">
+    <button id="ellipsis-button" class="ellipsis-btn">
+        <img src="{{ url_for('static', filename='images/img_3.png') }}" alt="Options">
+    </button>
+
+    <div id="dot-modal" class="dot-modal hidden">
+        <ul class="modal-options">
+            <li><button onclick="editEntry()">Editar</button></li>
+            <li><button onclick="exportToExcel()">Exportar a Excel</button></li>
+            <li><button onclick="exportToPDF()">Exportar a PDF</button></li>
+            <li><button class="delete-btn" onclick="deleteEntry()">Eliminar</button></li>
+        </ul>
+    </div>
+</div>

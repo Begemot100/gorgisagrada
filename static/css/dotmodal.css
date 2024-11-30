@@ -1,0 +1,49 @@
+/* Ellipsis button styling */
+.ellipsis-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.ellipsis-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Modal styling */
+.dot-modal {
+    position: absolute;
+    top: 50px; /* Adjust based on button position */
+    right: 10px; /* Adjust to align with the ellipsis button */
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    z-index: 100;
+    display: none; /* Initially hidden */
+}
+
+.dot-modal ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dot-modal li {
+    padding: 10px 0;
+    cursor: pointer;
+}
+
+.dot-modal li:hover {
+    background-color: #f2f2f2;
+}
+
+.dot-modal .delete-btn {
+    color: red;
+}
+
+/* Hidden class to toggle visibility */
+.hidden {
+    display: none;
+}

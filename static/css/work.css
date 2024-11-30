@@ -1,0 +1,107 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.page-container {
+    display: flex;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    width: 100px;
+    background-color: #fff; /* Белый фон для бокового блока */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo img {
+    max-width: 60px;
+    margin-bottom: 20px;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.header {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    background-color: #FC8C86;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.employee-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: #fff; /* Белый фон блока */
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.employee-header {
+    flex-basis: 20%;
+    margin-right: 20px;
+}
+
+.work-logs {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.work-logs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.work-logs-table th,
+.work-logs-table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.work-logs-table th {
+    font-weight: bold;
+}
+
+.work-logs-table td {
+    border: none; /* Убираем полоски из таблицы */
+}
+
+.summary-panel {
+    flex-basis: 15%;
+    padding: 20px;
+    background-color: #fff; /* Белый фон для блока саммари */
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
