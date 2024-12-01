@@ -373,6 +373,23 @@ def reset_logs():
 
     except Exception as e:
         logging.error(f"Error resetting logs: {e}")
+@app.route('/reset_log/<int:log_id>', methods=['POST'])
+def reset_log(log_id):
+    log = WorkLog.query.get(log_id)
+    if not log:
+        return jsonify({'success': False, 'message': 'Work log not found'}), 404
+
+    log.check_in_time = None
+    log.check_out_time = None
+    log.worked_hours = 0
+    log.holidays = 'Paid'  # Устанавливаем статус "Paid"
+
+    try:
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 scheduler = BackgroundScheduler()
@@ -431,29 +448,50 @@ def work():
 
     for employee in employees:
         logs = WorkLog.query.filter_by(employee_id=employee.id).all()
+
+        # Подсчёт отпусков
+        paid_holidays = sum(1 for log in logs if log.holidays == 'paid')
+        unpaid_holidays = sum(1 for log in logs if log.holidays == 'unpaid')
+
         employee_logs.append({
             'employee': employee,
-            'work_logs': logs
+            'work_logs': logs,
+            'total_hours': f"{sum(log.worked_hours or 0 for log in logs):.2f}",
+            'total_days': len(logs),
+            'paid_holidays': paid_holidays,
+            'unpaid_holidays': unpaid_holidays,
         })
 
     today = datetime.now().date()
 
     return render_template("work.html", employees=employee_logs, today=today)
 
+@app.route('/update_holiday_status/<int:log_id>', methods=['POST'])
+def update_holiday_status(log_id):
+    data = request.get_json()
+    status = data.get('status')
 
-@app.route('/update_holiday_status', methods=['POST'])
-def update_holiday_status():
-    log_id = request.form.get('log_id')
-    new_status = request.form.get('new_status')
+    # Найти лог по ID
+    log = WorkLog.query.get(log_id)
+    if not log:
+        return jsonify({'success': False, 'message': 'Work log not found'}), 404
 
-    work_log = WorkLog.query.get(log_id)
-    if not work_log:
-        return jsonify({'error': 'Log not found'}), 404
+    # Обновить статус отпуска
+    log.holidays = status
 
-    work_log.holidays = new_status
-    db.session.commit()
+    # Если статус "paid", обнуляем часы
+    if status == "paid":
+        log.check_in_time = None
+        log.check_out_time = None
+        log.worked_hours = 0
 
-    return jsonify({'message': 'Holiday status updated successfully!'}), 200
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'status': log.holidays})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 
 @app.template_filter('format_hours')
 def format_hours(value):
@@ -463,30 +501,41 @@ def format_hours(value):
     minutes = int((value - hours) * 60)
     return f'{hours}h {minutes}min'
 
+from datetime import datetime
+
 @app.route('/update_log_time/<int:log_id>', methods=['POST'])
 def update_log_time(log_id):
-    data = request.json
-    check_in_time = data.get('check_in_time')  # формат 'HH:MM'
-    check_out_time = data.get('check_out_time')  # формат 'HH:MM'
+    data = request.get_json()
+    check_in_time = data.get('check_in_time')  # Время входа в строковом формате
+    check_out_time = data.get('check_out_time')  # Время выхода в строковом формате
 
-    # Найти лог по ID
-    log = WorkLog.query.get(log_id)
-    if not log:
-        return jsonify({'success': False, 'message': 'Log not found'}), 404
+    if not check_in_time or not check_out_time:
+        return jsonify({"success": False, "message": "Invalid input"}), 400
 
-    # Преобразование времени в datetime
-    if check_in_time:
-        log.check_in_time = datetime.combine(date.today(), datetime.strptime(check_in_time, '%H:%M').time())
-    if check_out_time:
-        log.check_out_time = datetime.combine(date.today(), datetime.strptime(check_out_time, '%H:%M').time())
-
-    # Сохранить изменения
+    # Преобразование строк во время
     try:
-        db.session.commit()
-        return jsonify({'success': True, 'message': 'Log updated successfully'})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 500
+        check_in_time_obj = datetime.strptime(check_in_time, "%H:%M")
+        check_out_time_obj = datetime.strptime(check_out_time, "%H:%M")
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid time format"}), 400
+
+    # Находим лог в базе данных
+    work_log = WorkLog.query.get(log_id)
+    if not work_log:
+        return jsonify({"success": False, "message": "Work log not found"}), 404
+
+    # Обновляем данные
+    work_log.check_in_time = check_in_time_obj
+    work_log.check_out_time = check_out_time_obj
+
+    # Вычисляем worked_hours
+    worked_hours = (check_out_time_obj - check_in_time_obj).seconds / 3600.0
+    work_log.worked_hours = round(worked_hours, 2)
+
+    # Сохраняем изменения
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Work log updated successfully"})
 
 
 if __name__ == '__main__':

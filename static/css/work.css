@@ -159,18 +159,9 @@ body {
 .hidden {
     display: none;
 }
-.modal {
-    display: block;
-    position: fixed;
-    z-index: 1000;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    border-radius: 8px;
-}
+
+
+
 .dropdown-menu ul {
     list-style: none;
     margin: 0;
@@ -271,4 +262,35 @@ body {
     padding: 10px;
     background-color: #f9f9f9; /* Светлый фон */
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+}
+.redirect-button-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.redirect-button {
+    display: inline-block;
+    padding: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.redirect-icon {
+    width: 50px; /* Размер иконки */
+    height: auto;
+    transition: transform 0.2s;
+}
+
+.redirect-button:hover .redirect-icon {
+    transform: scale(1.1); /* Увеличение при наведении */
+}
+select[value="paid"] {
+    background-color: #FEDB5B; /* Yellow */
+    color: #000000; /* Black text */
+}
+.work-logs-container select {
+    display: block;
+    margin: 5px 0; /* Отступы между элементами */
 }

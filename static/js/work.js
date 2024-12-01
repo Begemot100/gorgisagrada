@@ -102,26 +102,26 @@ function applyCustomRange() {
     });
 }
 
-// Обновление статуса отпуска
-function updateHolidayStatus(logId, status) {
-    fetch(`/update_holiday_status/${logId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: status })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Статус обновлен.');
-            } else {
-                alert('Ошибка обновления статуса.');
-            }
-        })
-        .catch(error => {
-            console.error('Error updating status:', error);
-            alert('Ошибка обновления статуса.');
-        });
-}
+//// Обновление статуса отпуска
+//function updateHolidayStatus(logId, status) {
+//    fetch(`/update_holiday_status/${logId}`, {
+//        method: 'POST',
+//        headers: { 'Content-Type': 'application/json' },
+//        body: JSON.stringify({ status: status })
+//    })
+//        .then(response => response.json())
+//        .then(data => {
+//            if (data.success) {
+//                alert('Статус обновлен.');
+//            } else {
+//                alert('Ошибка обновления статуса.');
+//            }
+//        })
+//        .catch(error => {
+//            console.error('Error updating status:', error);
+//            alert('Ошибка обновления статуса.');
+//        });
+//}
 
 // Селекторы "выбрать все"
 function selectAllEmployees() {
@@ -247,31 +247,40 @@ function applyRandomSchedule() {
     const checkOutStart = document.getElementById('checkOutStart').value;
     const checkOutEnd = document.getElementById('checkOutEnd').value;
 
+    // Проверяем, заполнены ли все поля
     if (!checkInStart || !checkInEnd || !checkOutStart || !checkOutEnd) {
-        alert("Заполните все диапазоны времени!");
+        alert("Заполните все поля!");
         return;
     }
 
-    const selectedWorkLogs = document.querySelectorAll('.date-checkbox:checked');
+    // Находим все выбранные ворклоги
+    const selectedLogs = document.querySelectorAll('.date-checkbox:checked');
 
-    if (selectedWorkLogs.length === 0) {
-        alert("Выберите ворклоги для применения расписания.");
+    if (selectedLogs.length === 0) {
+        alert("Выберите хотя бы один ворклог!");
         return;
     }
 
-    selectedWorkLogs.forEach((checkbox) => {
+    selectedLogs.forEach((checkbox) => {
         const logRow = checkbox.closest('tr');
-        const checkInTime = logRow.querySelector('.check-in-time');
-        const checkOutTime = logRow.querySelector('.check-out-time');
+        const logId = checkbox.id.replace('log-', ''); // Получаем ID логов
+        const checkInTimeCell = logRow.querySelector('.check-in-time');
+        const checkOutTimeCell = logRow.querySelector('.check-out-time');
+        const totalCell = logRow.querySelector('.total-time'); // Обновление колонки Total
 
+        // Генерация случайного времени
         const randomCheckIn = getRandomTime(checkInStart, checkInEnd);
         const randomCheckOut = getRandomTime(checkOutStart, checkOutEnd);
 
-        if (checkInTime) checkInTime.textContent = randomCheckIn;
-        if (checkOutTime) checkOutTime.textContent = randomCheckOut;
+        // Обновляем UI
+        if (checkInTimeCell) checkInTimeCell.textContent = randomCheckIn;
+        if (checkOutTimeCell) checkOutTimeCell.textContent = randomCheckOut;
 
-        // Отправка изменений на сервер (опционально)
-        const logId = checkbox.id.replace('log-', '');
+        // Вычисляем разницу времени и обновляем Total
+        const totalTime = calculateTimeDifference(randomCheckIn, randomCheckOut);
+        if (totalCell) totalCell.textContent = totalTime;
+
+        // Отправляем данные на сервер
         fetch(`/update_log_time/${logId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -283,17 +292,40 @@ function applyRandomSchedule() {
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    console.log(`Ворклог ${logId} обновлён.`);
+                    console.log(`Log ${logId} успешно обновлен`);
                 } else {
-                    console.error(`Ошибка обновления ворклога ${logId}.`);
+                    console.error(`Ошибка обновления лога ${logId}:`, data.message);
                 }
             })
-            .catch((error) => console.error('Ошибка при обновлении ворклога:', error));
+            .catch((error) => {
+                console.error('Ошибка при обновлении лога:', error);
+            });
     });
 
-    // Закрытие модального окна после применения
+    // Закрываем модальное окно после применения
     closeNewScheduleModal();
-    alert("Расписание успешно применено!");
+    alert("Новое расписание успешно применено!");
+}
+
+
+function calculateTimeDifference(startTime, endTime) {
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+    const startDate = new Date();
+    startDate.setHours(startHours, startMinutes, 0);
+
+    const endDate = new Date();
+    endDate.setHours(endHours, endMinutes, 0);
+
+    const diffMs = endDate - startDate;
+
+    if (diffMs < 0) return "0h 0min";
+
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    return `${diffHours}h ${diffMinutes}min`;
 }
 
 // Генерация случайного времени в заданном диапазоне
@@ -301,8 +333,13 @@ function getRandomTime(start, end) {
     const [startHours, startMinutes] = start.split(':').map(Number);
     const [endHours, endMinutes] = end.split(':').map(Number);
 
-    const startTime = startHours * 60 + startMinutes;
-    const endTime = endHours * 60 + endMinutes;
+    const startTime = startHours * 60 + startMinutes; // Начальное время в минутах
+    const endTime = endHours * 60 + endMinutes; // Конечное время в минутах
+
+    if (startTime >= endTime) {
+        alert("Время окончания должно быть больше времени начала!");
+        return "--:--";
+    }
 
     const randomTime = Math.floor(Math.random() * (endTime - startTime + 1)) + startTime;
 
@@ -311,11 +348,167 @@ function getRandomTime(start, end) {
 
     return `${randomHours}:${randomMinutes}`;
 }
+
 fetch(`/update_log_time/${logId}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-        check_in_time: randomCheckIn,
-        check_out_time: randomCheckOut,
+        check_in_time: randomCheckIn, // Формат "HH:MM"
+        check_out_time: randomCheckOut // Формат "HH:MM"
     }),
 })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Work log updated successfully:", data.message);
+        } else {
+            console.error("Error updating work log:", data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+
+
+function updateHolidayStatus(logId, selectedStatus) {
+    fetch(`/update_holiday_status/${logId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: selectedStatus })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const selectElement = document.querySelector(`select[data-log-id="${logId}"]`);
+
+                // Обновление цвета фона
+                switch (selectedStatus) {
+                    case 'paid':
+                        selectElement.style.backgroundColor = '#FEDB5B';
+                        selectElement.style.color = '#000';
+                        break;
+                    case 'unpaid':
+                        selectElement.style.backgroundColor = '#DD8137';
+                        selectElement.style.color = '#fff';
+                        break;
+                    case 'weekend':
+                        selectElement.style.backgroundColor = '#A6A6A6';
+                        selectElement.style.color = '#fff';
+                        break;
+                    default:
+                        selectElement.style.backgroundColor = '';
+                        selectElement.style.color = '';
+                }
+
+                // Обновление блока Summary
+                updateSummary(selectedStatus);
+            } else {
+                alert('Ошибка обновления статуса');
+            }
+        })
+        .catch(error => console.error('Ошибка:', error));
+}
+
+
+function updateSummary(status) {
+    const paidHolidaysElement = document.querySelector('.badge.yellow');
+    const unpaidHolidaysElement = document.querySelector('.badge.orange');
+
+    if (status === 'paid') {
+        const currentPaid = parseInt(paidHolidaysElement.textContent) || 0;
+        paidHolidaysElement.textContent = currentPaid + 1;
+    } else if (status === 'unpaid') {
+        const currentUnpaid = parseInt(unpaidHolidaysElement.textContent) || 0;
+        unpaidHolidaysElement.textContent = currentUnpaid + 1;
+    }
+}
+
+
+
+function resetWorkLog(logId, selectElement) {
+    fetch(`/reset_log/${logId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reset: true })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Обнуляем логи в интерфейсе
+                const row = selectElement.closest('tr');
+                if (row) {
+                    const checkInCell = row.querySelector('.check-in-time');
+                    const checkOutCell = row.querySelector('.check-out-time');
+                    const totalCell = row.querySelector('.total-time');
+
+                    if (checkInCell) checkInCell.textContent = '--:--';
+                    if (checkOutCell) checkOutCell.textContent = '--:--';
+                    if (totalCell) totalCell.textContent = '0h 0min';
+
+                    // Обновляем Summary
+                    updateSummary('paid');
+                }
+            } else {
+                alert('Ошибка обнуления ворклога: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при обнулении ворклога:', error);
+            alert('Ошибка при обнулении ворклога.');
+        });
+}
+
+
+function updateWorkLogStatus(logId, status) {
+    fetch(`/update_holiday_status/${logId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert('Ошибка обновления статуса: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка обновления статуса:', error);
+            alert('Ошибка при обновлении статуса.');
+        });
+}
+
+function closeNewScheduleModal() {
+    const modal = document.getElementById('newscheduleModal');
+    modal.style.display = 'none';
+}
+
+function updateWorkLog(logId, randomCheckIn, randomCheckOut) {
+    fetch(`/update_log_time/${logId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            check_in_time: randomCheckIn, // Формат "HH:MM"
+            check_out_time: randomCheckOut // Формат "HH:MM"
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Work log updated successfully:", data.message);
+
+                // Обновить интерфейс для отображения нового времени
+                const checkInCell = document.querySelector(`#log-${logId} .check-in-time`);
+                const checkOutCell = document.querySelector(`#log-${logId} .check-out-time`);
+                const totalCell = document.querySelector(`#log-${logId} .total-time`);
+
+                if (checkInCell) checkInCell.textContent = randomCheckIn;
+                if (checkOutCell) checkOutCell.textContent = randomCheckOut;
+
+                // Пересчитать total время и обновить в интерфейсе
+                const totalTime = calculateTimeDifference(randomCheckIn, randomCheckOut);
+                if (totalCell) totalCell.textContent = totalTime;
+
+            } else {
+                console.error("Error updating work log:", data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+}
