@@ -1,0 +1,23 @@
+<div id="filterModal" class="modal filter-modal">
+    <div class="modal-content filter-modal-content">
+        <span class="close-btn" onclick="closeFilterModal()">&times;</span>
+        <h2>Фильтры</h2>
+        <ul class="filter-list filter-modal-list">
+
+            <li onclick="applyFilter('today')">Hoy</li>
+            <li onclick="applyFilter('yesterday')">Ayer</li>
+            <li onclick="applyFilter('last7days')">Últimos 7 días</li>
+            <li onclick="applyFilter('last30days')">Últimos 30 días</li>
+            <li onclick="applyFilter('thismonth')">Este mes</li>
+            <li onclick="applyFilter('lastmonth')">Mes Anterior</li>
+            <li onclick="applyCustomRange()">Rango Personalizado</li>
+        </ul>
+        <div id="customRangeInputs" style="display: none;">
+            <label for="startDate">Fecha inicio:</label>
+            <input type="date" id="startDate">
+            <label for="endDate">Fecha fin:</label>
+            <input type="date" id="endDate">
+            <button onclick="applyCustomDateRange()">Aplicar</button>
+        </div>
+    </div>
+</div>

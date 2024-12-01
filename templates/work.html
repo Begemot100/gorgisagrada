@@ -6,6 +6,7 @@
     <title>Work Logs</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/work.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/random.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/filter_modal.css') }}">
 
 <!--    <link rel="stylesheet" href="{{ url_for('static', filename='css/dotmodal.css') }}">-->
 </head>
@@ -33,7 +34,7 @@
             <!-- Filters -->
             <div class="filter-bar">
                 <div class="left-buttons">
-                    <button class="filter-btn">Hoy</button>
+                    <button id="filterButton" class="filter-btn" onclick="toggleFilterModal(this)">Hoy</button>
                     <button class="filter-btn">Grupo</button>
                     <button class="filter-btn" onclick="resetFilter()">Restablecer filtro</button>
                 </div>
@@ -193,6 +194,13 @@
         <div id="newscheduleModal" class="modal" style="display: none;">
             {% include 'newschedulemodal.html' %}
         </div>
+        <div id="filterModal" class="modal" style="display: none;">
+            {% include 'filter_modal.html' %}
+        </div>
+
+
+
+
 
 
 </body>

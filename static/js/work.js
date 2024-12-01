@@ -308,25 +308,25 @@ function applyRandomSchedule() {
 }
 
 
-function calculateTimeDifference(startTime, endTime) {
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const [endHours, endMinutes] = endTime.split(":").map(Number);
-
-    const startDate = new Date();
-    startDate.setHours(startHours, startMinutes, 0);
-
-    const endDate = new Date();
-    endDate.setHours(endHours, endMinutes, 0);
-
-    const diffMs = endDate - startDate;
-
-    if (diffMs < 0) return "0h 0min";
-
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-    return `${diffHours}h ${diffMinutes}min`;
-}
+//function calculateTimeDifference(startTime, endTime) {
+//    const [startHours, startMinutes] = startTime.split(":").map(Number);
+//    const [endHours, endMinutes] = endTime.split(":").map(Number);
+//
+//    const startDate = new Date();
+//    startDate.setHours(startHours, startMinutes, 0);
+//
+//    const endDate = new Date();
+//    endDate.setHours(endHours, endMinutes, 0);
+//
+//    const diffMs = endDate - startDate;
+//
+//    if (diffMs < 0) return "0h 0min";
+//
+//    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+//    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+//
+//    return `${diffHours}h ${diffMinutes}min`;
+//}
 
 // Генерация случайного времени в заданном диапазоне
 function getRandomTime(start, end) {
@@ -480,35 +480,125 @@ function closeNewScheduleModal() {
     modal.style.display = 'none';
 }
 
-function updateWorkLog(logId, randomCheckIn, randomCheckOut) {
+function updateWorkLog(logId, checkInTime, checkOutTime) {
     fetch(`/update_log_time/${logId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            check_in_time: randomCheckIn, // Формат "HH:MM"
-            check_out_time: randomCheckOut // Формат "HH:MM"
+            check_in_time: checkInTime, // Формат "HH:MM"
+            check_out_time: checkOutTime // Формат "HH:MM"
         }),
     })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                console.log("Work log updated successfully:", data.message);
+                console.log(`Log ${logId} updated successfully`);
 
                 // Обновить интерфейс для отображения нового времени
                 const checkInCell = document.querySelector(`#log-${logId} .check-in-time`);
                 const checkOutCell = document.querySelector(`#log-${logId} .check-out-time`);
                 const totalCell = document.querySelector(`#log-${logId} .total-time`);
 
-                if (checkInCell) checkInCell.textContent = randomCheckIn;
-                if (checkOutCell) checkOutCell.textContent = randomCheckOut;
+                if (checkInCell) checkInCell.textContent = checkInTime;
+                if (checkOutCell) checkOutCell.textContent = checkOutTime;
 
                 // Пересчитать total время и обновить в интерфейсе
-                const totalTime = calculateTimeDifference(randomCheckIn, randomCheckOut);
+                const totalTime = calculateTimeDifference(checkInTime, checkOutTime);
                 if (totalCell) totalCell.textContent = totalTime;
 
             } else {
-                console.error("Error updating work log:", data.message);
+                console.error(`Failed to update log ${logId}:`, data.message);
             }
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            console.error('Error updating log:', error);
+        });
 }
+
+// Вспомогательная функция для вычисления разницы времени
+function calculateTimeDifference(startTime, endTime) {
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+    const startDate = new Date();
+    startDate.setHours(startHours, startMinutes, 0);
+
+    const endDate = new Date();
+    endDate.setHours(endHours, endMinutes, 0);
+
+    const diffMs = endDate - startDate;
+
+    if (diffMs < 0) return "0h 0min";
+
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    return `${diffHours}h ${diffMinutes}min`;
+}
+
+function openFilterModal() {
+    const modal = document.getElementById('filterModal');
+    if (modal) {
+        modal.style.display = 'block';
+    } else {
+        console.error('Modal element with ID "filterModal" not found');
+    }
+}
+
+function closeFilterModal() {
+    const modal = document.getElementById('filterModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+
+function applyFilter(filter) {
+    let url = `/work?filter=${filter}`;
+    window.location.href = url;
+}
+
+function applyCustomRange() {
+    document.getElementById('customRangeInputs').style.display = 'block';
+}
+
+function applyCustomDateRange() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (!startDate || !endDate) {
+        alert('Пожалуйста, выберите диапазон дат.');
+        return;
+    }
+
+    let url = `/work?start_date=${startDate}&end_date=${endDate}`;
+    window.location.href = url;
+}
+function toggleFilterModal(button) {
+    const modal = document.getElementById('filterModal');
+    const rect = button.getBoundingClientRect(); // Получаем положение кнопки
+
+    // Располагаем модальное окно с дополнительным отступом
+    const offsetX = 200; // Отступ вправо
+    const offsetY = 150; // Отступ вниз
+
+    modal.style.top = `${rect.bottom + window.scrollY + offsetY}px`; // Отступ вниз от кнопки
+    modal.style.left = `${rect.left + window.scrollX + offsetX}px`; // Отступ вправо от кнопки
+
+    // Переключаем видимость
+    if (modal.style.display === 'none' || !modal.style.display) {
+        modal.style.display = 'block';
+    } else {
+        modal.style.display = 'none';
+    }
+}
+
+// Закрываем модальное окно при клике вне его
+document.addEventListener('click', (event) => {
+    const modal = document.getElementById('filterModal');
+    const button = document.getElementById('filterButton'); // ID кнопки Hoy
+
+    if (modal && !modal.contains(event.target) && event.target !== button) {
+        modal.style.display = 'none';
+    }
+});

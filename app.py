@@ -440,14 +440,32 @@ def board():
 
     return render_template('board.html', dashboard_data=dashboard_data, current_date=today)
 
+from datetime import datetime, date
 
 @app.route('/work')
 def work():
     employees = Employee.query.all()
+    today = date.today()
     employee_logs = []
 
+    # Проверяем и создаем лог за сегодняшний день, если отсутствует
     for employee in employees:
-        logs = WorkLog.query.filter_by(employee_id=employee.id).all()
+        existing_log = WorkLog.query.filter_by(employee_id=employee.id, log_date=today).first()
+        if not existing_log:
+            new_log = WorkLog(
+                employee_id=employee.id,
+                log_date=today,
+                check_in_time=None,
+                check_out_time=None,
+                worked_hours=0
+            )
+            db.session.add(new_log)
+
+    db.session.commit()
+
+    # Формируем данные для шаблона
+    for employee in employees:
+        logs = WorkLog.query.filter_by(employee_id=employee.id).order_by(WorkLog.log_date.desc()).all()
 
         # Подсчёт отпусков
         paid_holidays = sum(1 for log in logs if log.holidays == 'paid')
@@ -461,8 +479,6 @@ def work():
             'paid_holidays': paid_holidays,
             'unpaid_holidays': unpaid_holidays,
         })
-
-    today = datetime.now().date()
 
     return render_template("work.html", employees=employee_logs, today=today)
 
@@ -536,6 +552,33 @@ def update_log_time(log_id):
     db.session.commit()
 
     return jsonify({"success": True, "message": "Work log updated successfully"})
+
+
+
+def add_missing_logs():
+    employees = Employee.query.all()
+    today = date.today()
+
+    for employee in employees:
+        # Проверяем, есть ли лог за сегодняшний день
+        existing_log = WorkLog.query.filter_by(employee_id=employee.id, log_date=today).first()
+        if not existing_log:
+            # Создаем новый лог с прочерками
+            new_log = WorkLog(
+                employee_id=employee.id,
+                log_date=today,
+                check_in_time=None,
+                check_out_time=None,
+                worked_hours=0
+            )
+            db.session.add(new_log)
+
+    db.session.commit()
+
+# Инициализация планировщика
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=add_missing_logs, trigger="cron", hour=23, minute=45)  # Выполняется каждый день в 23:45
+scheduler.start()
 
 
 if __name__ == '__main__':
