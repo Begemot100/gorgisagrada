@@ -86,19 +86,27 @@
                                 <tbody>
                                     {% for log in employee_data.work_logs %}
                                     <tr class="log-row-{{ employee_data.employee.id }}">
-                                        <td>{{ log.log_date.strftime('%d/%m/%Y') }}</td>
-                                        <td>{{ log.check_in_time.strftime('%H:%M') if log.check_in_time else '--:--' }}</td>
-                                        <td>{{ log.check_out_time.strftime('%H:%M') if log.check_out_time else '--:--' }}</td>
+                                        <td>{{ log.log_date if log.log_date is string else log.log_date.strftime('%d/%m/%Y') }}</td>
+                                        <td>{{ log.check_in_time }}</td>
+                                        <td>{{ log.check_out_time }}</td>
                                         <td>{{ log.worked_hours | format_hours if log.worked_hours else '0 hours' }}</td>
-                                        <td>
-                                            <select onchange="updateHolidayStatus({{ log.id }}, this.value)" data-log-id="{{ log.id }}">
-                                                <option value="workingday" {% if log.holidays == 'workingday' %}selected{% endif %}>Día laboral</option>
-                                                <option value="paid" {% if log.holidays == 'paid' %}selected{% endif %}>Pagado</option>
-                                                <option value="unpaid" {% if log.holidays == 'unpaid' %}selected{% endif %}>No pagado</option>
-                                                <option value="weekend" {% if log.holidays == 'weekend' %}selected{% endif %}>Fin de semana</option>
-                                            </select>
 
-                                        </td>
+                                    <td>
+                                        <select onchange="updateHolidayStatus(this.dataset.logId, this)"
+                                                data-log-id="{{ log.id }}"
+                                                data-employee-id="{{ employee_data.employee.id }}"
+                                                id="holiday-select-{{ log.id }}">
+                                            <option value="workingday" {% if log.holidays == 'workingday' %}selected{% endif %}>Día laboral</option>
+                                            <option value="paid" {% if log.holidays == 'paid' %}selected{% endif %}>Pagado</option>
+                                            <option value="unpaid" {% if log.holidays == 'unpaid' %}selected{% endif %}>No pagado</option>
+                                            <option value="weekend" {% if log.holidays == 'weekend' %}selected{% endif %}>Fin de semana</option>
+                                        </select>
+                                    </td>
+
+
+
+
+
                                         <td class="checkbox-cell hidden">
                                             <input type="checkbox" class="date-checkbox" id="log-{{ log.id }}">
                                         </td>

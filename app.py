@@ -442,11 +442,55 @@ def board():
 
 from datetime import datetime, date
 
-@app.route('/work')
+from flask import request, jsonify
+from datetime import date, datetime, timedelta
+from sqlalchemy import and_
+
+from flask import jsonify, render_template, request
+from datetime import datetime, timedelta, date
+from sqlalchemy import and_
+import logging
+
+@app.route('/work', methods=['GET'])
 def work():
+    # Получение фильтров из запроса
+    filter_type = request.args.get('filter', 'thismonth')  # Тип фильтра: today, yesterday, last7days, last30days, thismonth, lastmonth
+    start_date_str = request.args.get('start_date')  # Пользовательский диапазон
+    end_date_str = request.args.get('end_date')
+    logging.info(f"Применен фильтр: {filter_type}")
+
     employees = Employee.query.all()
     today = date.today()
     employee_logs = []
+
+    # Логика фильтрации по дате
+    if start_date_str and end_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({"error": "Invalid date format"}), 400
+    elif filter_type == 'today':
+        start_date = end_date = today
+    elif filter_type == 'yesterday':
+        start_date = end_date = today - timedelta(days=1)
+    elif filter_type == 'last7days':
+        start_date = today - timedelta(days=7)
+        end_date = today
+    elif filter_type == 'last30days':
+        start_date = today - timedelta(days=30)
+        end_date = today
+    elif filter_type == 'thismonth':
+        start_date = today.replace(day=1)  # Первый день текущего месяца
+        next_month = today.replace(day=28) + timedelta(days=4)  # Переход к следующему месяцу
+        end_date = next_month.replace(day=1) - timedelta(days=1)  # Последний день текущего месяца
+    elif filter_type == 'lastmonth':
+        first_day_of_this_month = today.replace(day=1)
+        last_day_of_last_month = first_day_of_this_month - timedelta(days=1)
+        start_date = last_day_of_last_month.replace(day=1)  # Первый день предыдущего месяца
+        end_date = last_day_of_last_month  # Последний день предыдущего месяца
+    else:
+        start_date = end_date = today  # По умолчанию сегодня
 
     # Проверяем и создаем лог за сегодняшний день, если отсутствует
     for employee in employees:
@@ -465,41 +509,66 @@ def work():
 
     # Формируем данные для шаблона
     for employee in employees:
-        logs = WorkLog.query.filter_by(employee_id=employee.id).order_by(WorkLog.log_date.desc()).all()
+        logs = WorkLog.query.filter(
+            and_(
+                WorkLog.employee_id == employee.id,
+                WorkLog.log_date >= start_date,
+                WorkLog.log_date <= end_date
+            )
+        ).order_by(WorkLog.log_date.desc()).all()
 
         # Подсчёт отпусков
         paid_holidays = sum(1 for log in logs if log.holidays == 'paid')
         unpaid_holidays = sum(1 for log in logs if log.holidays == 'unpaid')
 
         employee_logs.append({
-            'employee': employee,
-            'work_logs': logs,
+            'employee': {
+                'id': employee.id,
+                'full_name': employee.full_name,
+                'position': employee.position
+            },
+            'work_logs': [{
+                'id': log.id,
+                'log_date': log.log_date.strftime('%Y-%m-%d'),
+                'check_in_time': log.check_in_time.strftime('%H:%M') if log.check_in_time else '--:--',
+                'check_out_time': log.check_out_time.strftime('%H:%M') if log.check_out_time else '--:--',
+                'worked_hours': log.worked_hours or 0,
+                'holidays': log.holidays
+            } for log in logs],
             'total_hours': f"{sum(log.worked_hours or 0 for log in logs):.2f}",
             'total_days': len(logs),
             'paid_holidays': paid_holidays,
             'unpaid_holidays': unpaid_holidays,
         })
 
-    return render_template("work.html", employees=employee_logs, today=today)
+    # Возврат данных для шаблона или в формате JSON
+    if request.headers.get('Accept') == 'application/json':
+        return jsonify(employee_logs)
+    else:
+        return render_template("work.html", employees=employee_logs, today=today)
+
 
 @app.route('/update_holiday_status/<int:log_id>', methods=['POST'])
 def update_holiday_status(log_id):
+    app.logger.info(f"Получен запрос на обновление статуса для log_id={log_id}")
+
     data = request.get_json()
     status = data.get('status')
+    if not status:
+        return jsonify({'success': False, 'message': 'Status not provided'}), 400
 
-    # Найти лог по ID
     log = WorkLog.query.get(log_id)
     if not log:
-        return jsonify({'success': False, 'message': 'Work log not found'}), 404
+        return jsonify({'success': False, 'message': 'Log not found'}), 404
 
-    # Обновить статус отпуска
     log.holidays = status
-
-    # Если статус "paid", обнуляем часы
-    if status == "paid":
+    if status in ["paid", "unpaid"]:
         log.check_in_time = None
         log.check_out_time = None
         log.worked_hours = 0
+
+    if status == 'unpaid' and employee.total_days > 0:
+        employee.total_days -= 1
 
     try:
         db.session.commit()

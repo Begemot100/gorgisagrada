@@ -1,6 +1,6 @@
 /* Уникальные стили для модального окна */
 #filterModal.filter-modal {
-    display: none; /* Скрыто по умолчанию */
+    display: block; /* Скрыто по умолчанию */
     position: absolute; /* Абсолютное позиционирование */
     z-index: 1000; /* Высокий уровень отображения */
     background-color: #fff; /* Белый фон */

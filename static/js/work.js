@@ -184,50 +184,50 @@ function closeModal() {
 //    document.getElementById('customRangePicker').addEventListener('click', applyCustomRange);
 //});
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Select all dropdown elements with the name "holiday_type"
-    const dayTypeSelects = document.querySelectorAll('select[name="holiday_type"]');
-
-    // Function to update the background color
-    function updateDayTypeBackground(selectElement) {
-        // Log for debugging to ensure the function is called
-        console.log('Updating background for:', selectElement.value);
-
-        switch (selectElement.value) {
-            case 'paid':
-                selectElement.style.backgroundColor = '#FEDB5B'; // Yellow
-                selectElement.style.color = '#000000'; // Black text
-                break;
-            case 'unpaid':
-                selectElement.style.backgroundColor = '#DD8137'; // Orange
-                selectElement.style.color = '#FFFFFF'; // White text
-                break;
-            case 'weekend':
-                selectElement.style.backgroundColor = '#A6A6A6'; // Gray
-                selectElement.style.color = '#FFFFFF'; // White text
-                break;
-            default:
-                selectElement.style.backgroundColor = ''; // Reset to default
-                selectElement.style.color = ''; // Reset to default
-        }
-    }
-
-    // Initialize the background on page load
-    dayTypeSelects.forEach(select => {
-        // Apply initial background
-        updateDayTypeBackground(select);
-
-        // Listen for changes and update the background
-        select.addEventListener('change', function () {
-            updateDayTypeBackground(select);
-        });
-    });
-
-    // Debugging: Log if no select elements are found
-    if (dayTypeSelects.length === 0) {
-        console.error('No select elements found with name "holiday_type".');
-    }
-});
+//document.addEventListener('DOMContentLoaded', function () {
+//    // Select all dropdown elements with the name "holiday_type"
+//    const dayTypeSelects = document.querySelectorAll('select[name="holiday_type"]');
+//
+//    // Function to update the background color
+//    function updateDayTypeBackground(selectElement) {
+//        // Log for debugging to ensure the function is called
+//        console.log('Updating background for:', selectElement.value);
+//
+//        switch (selectElement.value) {
+//            case 'paid':
+//                selectElement.style.backgroundColor = '#FEDB5B'; // Yellow
+//                selectElement.style.color = '#000000'; // Black text
+//                break;
+//            case 'unpaid':
+//                selectElement.style.backgroundColor = '#DD8137'; // Orange
+//                selectElement.style.color = '#FFFFFF'; // White text
+//                break;
+//            case 'weekend':
+//                selectElement.style.backgroundColor = '#A6A6A6'; // Gray
+//                selectElement.style.color = '#FFFFFF'; // White text
+//                break;
+//            default:
+//                selectElement.style.backgroundColor = ''; // Reset to default
+//                selectElement.style.color = ''; // Reset to default
+//        }
+//    }
+//
+//    // Initialize the background on page load
+//    dayTypeSelects.forEach(select => {
+//        // Apply initial background
+//        updateDayTypeBackground(select);
+//
+//        // Listen for changes and update the background
+//        select.addEventListener('change', function () {
+//            updateDayTypeBackground(select);
+//        });
+//    });
+//
+//    // Debugging: Log if no select elements are found
+//    if (dayTypeSelects.length === 0) {
+//        console.error('No select elements found with name "holiday_type".');
+//    }
+//});
 //function toggleDropdown() {
 //    const dropdownMenu = document.getElementById('dropdown-menu');
 //    if (dropdownMenu) {
@@ -368,56 +368,132 @@ fetch(`/update_log_time/${logId}`, {
     .catch(error => console.error("Error:", error));
 
 
-function updateHolidayStatus(logId, selectedStatus) {
+function updateHolidayStatus(logId, selectElement) {
+    if (!logId) {
+        console.error("Log ID is missing.");
+        alert("Ошибка: ID лога отсутствует.");
+        return;
+    }
+
+    const status = selectElement.value;
+
+    if (status === "paid" || status === "unpaid") {
+        const confirmMessage = status === "paid"
+            ? "Вы уверены? Это обнулит логи, но день останется в суммарных данных."
+            : "Вы уверены? Это обнулит логи и вычтет день из суммарных данных.";
+        if (!confirm(confirmMessage)) {
+            selectElement.value = "workingday";
+            updateSelectBackground(selectElement);
+            return;
+        }
+    }
+
     fetch(`/update_holiday_status/${logId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: selectedStatus })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: status })
     })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const selectElement = document.querySelector(`select[data-log-id="${logId}"]`);
+                alert("Статус успешно обновлён.");
+                updateSelectBackground(selectElement); // Обновляем цвет
 
-                // Обновление цвета фона
-                switch (selectedStatus) {
-                    case 'paid':
-                        selectElement.style.backgroundColor = '#FEDB5B';
-                        selectElement.style.color = '#000';
-                        break;
-                    case 'unpaid':
-                        selectElement.style.backgroundColor = '#DD8137';
-                        selectElement.style.color = '#fff';
-                        break;
-                    case 'weekend':
-                        selectElement.style.backgroundColor = '#A6A6A6';
-                        selectElement.style.color = '#fff';
-                        break;
-                    default:
-                        selectElement.style.backgroundColor = '';
-                        selectElement.style.color = '';
-                }
-
-                // Обновление блока Summary
-                updateSummary(selectedStatus);
+                // Обновляем Summary
+                updateSummary(status, selectElement.dataset.employeeId);
             } else {
-                alert('Ошибка обновления статуса');
+                alert(`Ошибка обновления статуса: ${data.message}`);
             }
         })
-        .catch(error => console.error('Ошибка:', error));
+        .catch(error => {
+            console.error("Ошибка при обновлении статуса:", error);
+            alert("Произошла ошибка при обновлении статуса.");
+        });
 }
 
+// Function to update the background color of the select element
+function updateSelectBackground(selectElement) {
+    switch (selectElement.value) {
+        case "paid":
+            selectElement.style.backgroundColor = "#FEDB5B"; // Желтый
+            selectElement.style.color = "#000000"; // Черный текст
+            break;
+        case "unpaid":
+            selectElement.style.backgroundColor = "#DD8137"; // Оранжевый
+            selectElement.style.color = "#FFFFFF"; // Белый текст
+            break;
+        case "weekend":
+            selectElement.style.backgroundColor = "#A6A6A6"; // Серый
+            selectElement.style.color = "#FFFFFF"; // Белый текст
+            break;
+        default:
+            selectElement.style.backgroundColor = ""; // Убираем фон
+            selectElement.style.color = ""; // Сбрасываем цвет текста
+    }
+}
 
-function updateSummary(status) {
-    const paidHolidaysElement = document.querySelector('.badge.yellow');
-    const unpaidHolidaysElement = document.querySelector('.badge.orange');
+//document.addEventListener("DOMContentLoaded", () => {
+//    const selects = document.querySelectorAll('select[data-log-id]');
+//    selects.forEach(select => updateSelectBackground(select));
+//});
 
-    if (status === 'paid') {
-        const currentPaid = parseInt(paidHolidaysElement.textContent) || 0;
-        paidHolidaysElement.textContent = currentPaid + 1;
-    } else if (status === 'unpaid') {
-        const currentUnpaid = parseInt(unpaidHolidaysElement.textContent) || 0;
-        unpaidHolidaysElement.textContent = currentUnpaid + 1;
+// Инициализация цветов при загрузке страницы
+document.addEventListener("DOMContentLoaded", () => {
+    const selects = document.querySelectorAll("select[data-log-id]");
+    selects.forEach(select => updateSelectBackground(select));
+});
+
+
+//// Установка начальных цветов при загрузке страницы
+//document.addEventListener('DOMContentLoaded', () => {
+//    const holidaySelects = document.querySelectorAll('select[data-log-id]');
+//    holidaySelects.forEach(select => {
+//        updateSelectBackground(select);
+//        // Сохраняем начальное значение
+//        select.dataset.previousValue = select.value;
+//
+//        // Слушатель для отслеживания изменений
+//        select.addEventListener('change', () => {
+//            select.dataset.previousValue = select.value;
+//        });
+//    });
+//});
+
+function resetWorkLogInUI(logId) {
+    const row = document.querySelector(`tr[data-log-id="${logId}"]`);
+    if (row) {
+        row.querySelector(".check-in-time").textContent = "--:--";
+        row.querySelector(".check-out-time").textContent = "--:--";
+        row.querySelector(".total-time").textContent = "0h 0min";
+    }
+}
+//
+//// Установка начальных цветов при загрузке страницы
+//document.addEventListener("DOMContentLoaded", () => {
+//    const selects = document.querySelectorAll('select[data-log-id]');
+//    selects.forEach(select => updateSelectBackground(select));
+//});
+//// Установить цвет для всех выпадающих списков при загрузке
+
+
+function updateSummary(status, employeeId) {
+    // Получаем элементы Total Days и Unpaid Holidays
+    const totalDaysElement = document.querySelector(`#total-days-${employeeId}`);
+    const unpaidHolidaysElement = document.querySelector(".badge.orange");
+
+    // Если статус "unpaid", уменьшаем Total Days и увеличиваем Unpaid Holidays
+    if (status === "unpaid") {
+        if (totalDaysElement) {
+            const currentTotalDays = parseInt(totalDaysElement.textContent) || 0;
+            if (currentTotalDays > 0) {
+                totalDaysElement.textContent = currentTotalDays - 1;
+            }
+        }
+
+        if (unpaidHolidaysElement) {
+            const currentUnpaid = parseInt(unpaidHolidaysElement.textContent) || 0;
+            unpaidHolidaysElement.textContent = currentUnpaid + 1;
+        }
     }
 }
 
@@ -602,3 +678,48 @@ document.addEventListener('click', (event) => {
         modal.style.display = 'none';
     }
 });
+document.addEventListener('DOMContentLoaded', () => {
+    const holidaySelects = document.querySelectorAll('select[data-log-id]');
+
+    // Функция для обновления цвета select
+    function updateSelectBackground(selectElement) {
+        const value = selectElement.value;
+        switch (value) {
+            case 'paid':
+                selectElement.style.backgroundColor = '#FEDB5B'; // Желтый
+                selectElement.style.color = '#000'; // Черный текст
+                break;
+            case 'unpaid':
+                selectElement.style.backgroundColor = '#DD8137'; // Оранжевый
+                selectElement.style.color = '#FFF'; // Белый текст
+                break;
+            case 'weekend':
+                selectElement.style.backgroundColor = '#A6A6A6'; // Серый
+                selectElement.style.color = '#FFF'; // Белый текст
+                break;
+            default: // 'workingday'
+                selectElement.style.backgroundColor = '';
+                selectElement.style.color = '';
+        }
+    }
+
+    // Применяем цвет для всех select при загрузке
+    holidaySelects.forEach(select => updateSelectBackground(select));
+
+    // Добавляем обработчик событий на изменение статуса
+    holidaySelects.forEach(select => {
+        select.addEventListener('change', function () {
+            updateHolidayStatus(this.dataset.logId, this);
+        });
+    });
+});
+setInterval(() => {
+    const selects = document.querySelectorAll('select[data-log-id]');
+    selects.forEach(select => {
+        const logId = select.dataset.logId;
+        const status = select.value;
+        updateSelectBackground(select); // Обновляем цвет
+        updateSummary(status, logId); // Обновляем Summary
+    });
+}, 5000);
+
