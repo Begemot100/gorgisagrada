@@ -29,7 +29,7 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = db_url or f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'employees.db')}"
 #
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.secret_key = '6006'
+app.secret_key = '6006'
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=4)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/germany/Desktop/sagrada/pythonProject1/instance/employees.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -119,9 +119,110 @@ class WorkLog(db.Model):
 def home():
     return render_template('home.html')
 
-# @app.route('/login')
-# def index():
-#     return render_template('index.html')
+@app.route('/index')
+def index():
+    if not session.get('admin_logged_in'):
+        return redirect('/admin_login')  # Перенаправление на страницу входа, если администратор не авторизован
+    return render_template('index.html')  # Отображаем index.html
+
+@app.route('/admin_register', methods=['GET', 'POST'])
+def admin_register():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Проверка совпадения пароля
+        if password != confirm_password:
+            return jsonify({'error': 'Passwords do not match'}), 400
+
+        # Проверка существующего администратора
+        if Admin.query.filter_by(email=email).first():
+            return jsonify({'error': 'Admin with this email already exists'}), 400
+
+        # Создание нового администратора
+        admin = Admin(email=email)
+        admin.set_password(password)
+        db.session.add(admin)
+        db.session.commit()
+
+        return redirect('/admin_login')  # После регистрации перенаправляем на страницу входа
+
+    return render_template('admin_register.html')  # HTML-форма для регистрации
+
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        admin = Admin.query.filter_by(email=email).first()
+        if not admin or not admin.check_password(password):
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+        # Сохранение сессии администратора
+        session['admin_logged_in'] = True
+        session['admin_email'] = admin.email
+
+        return redirect('/index')  # Перенаправляем на страницу index.html
+
+    return render_template('admin_login.html')  # HTML-страница для входа
+
+@app.route('/worker_register', methods=['GET', 'POST'])
+def worker_register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Проверка совпадения пароля
+        if password != confirm_password:
+            return jsonify({'error': 'Passwords do not match'}), 400
+
+        # Проверка существующего работника
+        if DashboardUser.query.filter_by(username=username).first():
+            return jsonify({'error': 'Worker with this username already exists'}), 400
+
+        # Создание нового работника
+        worker = DashboardUser(username=username, role='worker')
+        worker.set_password(password)
+        db.session.add(worker)
+        db.session.commit()
+
+        return redirect('/worker_login')  # Перенаправляем на страницу входа
+
+    return render_template('worker_register.html')  # HTML-страница для регистрации работника
+
+@app.route('/worker_login', methods=['GET', 'POST'])
+def worker_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        worker = DashboardUser.query.filter_by(username=username, role='worker').first()
+        if not worker or not worker.check_password(password):
+            return jsonify({'error': 'Invalid username or password'}), 401
+
+        # Сохранение сессии работника
+        session['worker_logged_in'] = True
+        session['worker_username'] = worker.username
+
+        return redirect('/board')  # Перенаправляем на board.html
+
+    return render_template('worker_login.html')  # HTML-страница для входа работника
+
+@app.route('/logout')
+def logout():
+    session.pop('admin_logged_in', None)
+    session.pop('admin_email', None)
+    return redirect('/admin_login')
+
+@app.route('/worker_logout')
+def worker_logout():
+    session.pop('worker_logged_in', None)
+    session.pop('worker_username', None)
+    return redirect('/worker_login')
+
 
 
 @app.route('/add', methods=['POST'])
@@ -410,7 +511,12 @@ def calculate_hours(check_in, check_out):
 
 @app.route('/board')
 def board():
-    employees = Employee.query.all()  # Получаем всех сотрудников
+    # Проверяем, авторизован ли работник
+    if not session.get('worker_logged_in'):
+        return redirect('/worker_login')  # Если работник не авторизован, перенаправляем на вход
+
+    # Получаем всех сотрудников
+    employees = Employee.query.all()
     dashboard_data = []
     today = date.today()
 
