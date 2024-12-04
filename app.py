@@ -23,7 +23,10 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 # Настройка базы данных: используем DATABASE_URL, если доступно, или SQLite для локальной разработки
-# db_url = os.getenv('DATABASE_URL')
+db_url = os.getenv('DATABASE_URL')
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
 # if db_url and db_url.startswith("postgres://"):
 #     db_url = db_url.replace("postgres://", "postgresql://", 1)
 # app.config['SQLALCHEMY_DATABASE_URI'] = db_url or f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'employees.db')}"
@@ -31,9 +34,9 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = '6006'
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=4)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-    'DATABASE_URL', 'sqlite:////Users/germany/Desktop/sagrada/pythonProject1/instance/employees.db'
-)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:////Users/germany/Desktop/sagrada/pythonProject1/instance/employees.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
