@@ -745,6 +745,52 @@ def add_missing_logs():
 
     db.session.commit()
 
+
+@app.route('/export', methods=['POST'])
+def export_to_excel():
+    from io import BytesIO
+    import pandas as pd
+
+    selected_log_ids = request.json.get('selected_logs', [])
+    if not selected_log_ids:
+        return jsonify({'error': 'No logs selected'}), 400
+
+    logs = WorkLog.query.filter(WorkLog.id.in_(selected_log_ids)).all()
+
+    if not logs:
+        return jsonify({'error': 'No data found for selected logs'}), 404
+
+    grouped_logs = {}
+    for log in logs:
+        employee = log.employee
+        if employee.id not in grouped_logs:
+            grouped_logs[employee.id] = {
+                'employee': f"{employee.full_name} - {employee.position} {employee.nie}",
+                'logs': []
+            }
+        grouped_logs[employee.id]['logs'].append(log)
+
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        for employee_id, data in grouped_logs.items():
+            logs_data = []
+            for log in data['logs']:
+                logs_data.append({
+                    'Date': log.log_date.strftime('%Y-%m-%d') if log.log_date else '--',
+                    'Entrada': log.check_in_time or '--',
+                    'Salida Comida': '--',
+                    'Salida': log.check_out_time or '--',
+                    'Total Day Hours': log.worked_hours or '0:00',
+                    'Holiday Type': log.holidays or 'Working day',
+                    'Days Worked': 1 if log.holidays == 'workingday' else 0
+                })
+
+            logs_df = pd.DataFrame(logs_data)
+            logs_df.to_excel(writer, index=False, sheet_name=data['employee'][:31])
+
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name='work_logs.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
 # Инициализация планировщика
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=add_missing_logs, trigger="cron", hour=23, minute=45)  # Выполняется каждый день в 23:45
@@ -754,4 +800,4 @@ scheduler.start()
 if __name__ == '__main__':
 
     # Запускаем Flask сервер
-    app.run(debug=True, port=5003)
+    app.run(debug=True, port=5002)
