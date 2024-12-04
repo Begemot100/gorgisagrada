@@ -1,98 +1,192 @@
-// Открытие модального окна "New Employee"
-document.getElementById('open-modal-btn').addEventListener('click', () => {
-    const modal = document.getElementById('employee-modal');
-    modal.style.display = 'block';
-});
+document.addEventListener('DOMContentLoaded', function () {
+    // Модальное окно "New Employee"
+    const newEmployeeModal = document.getElementById('employee-modal');
+    const openNewEmployeeModalBtn = document.getElementById('open-modal-btn');
+    const newEmployeeForm = document.getElementById('employee-form');
+    const cancelNewEmployeeModalBtn = newEmployeeModal?.querySelector('.cancel-btn');
 
-// Закрытие модального окна при клике на кнопку Cancel
-document.querySelector('.cancel-btn').addEventListener('click', () => {
-    const modal = document.getElementById('employee-modal');
-    modal.style.display = 'none';
-});
+    if (newEmployeeModal && openNewEmployeeModalBtn && cancelNewEmployeeModalBtn) {
+        openNewEmployeeModalBtn.addEventListener('click', () => {
+            newEmployeeModal.style.display = 'block';
+        });
 
-// Закрытие модального окна при клике на область вне его
-window.addEventListener('click', (event) => {
-    const modal = document.getElementById('employee-modal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
+        cancelNewEmployeeModalBtn.addEventListener('click', () => {
+            newEmployeeModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === newEmployeeModal) {
+                newEmployeeModal.style.display = 'none';
+            }
+        });
+
+        newEmployeeForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Отключаем стандартное поведение формы
+
+            fetch(newEmployeeForm.action, {
+                method: 'POST',
+                body: new FormData(newEmployeeForm)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        newEmployeeModal.style.display = 'none';
+                        newEmployeeForm.reset(); // Сбрасываем поля формы
+                        alert('Employee added successfully!');
+                        location.reload(); // Перезагружаем страницу
+                    } else {
+                        alert('Failed to add employee. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding employee:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        });
+    } else {
+        console.error("New Employee Modal elements not found.");
     }
-});
-// Открытие модального окна "Edit Employee"
-function openEditModal(employee) {
-    const modal = document.getElementById('edit-employee-modal');
 
-    // Заполняем поля формы данными сотрудника
-    document.getElementById('employee-id').value = employee.id;
-    document.getElementById('edit-full_name').value = employee.full_name;
-    document.getElementById('edit-nie').value = employee.nie;
-    document.getElementById('edit-start_date').value = employee.start_date || '';
-    document.getElementById('edit-end_date').value = employee.end_date || '';
-    document.getElementById('edit-work_start_time').value = employee.work_start_time || '';
-    document.getElementById('edit-work_end_time').value = employee.work_end_time || '';
-    document.getElementById('edit-days_per_week').value = employee.days_per_week || '';
-    document.getElementById('edit-position').value = employee.position || '';
-    document.getElementById('edit-section').value = employee.section || '';
-    document.getElementById('edit-phone').value = employee.phone || '';
-    document.getElementById('edit-email').value = employee.email || '';
+    // Модальное окно "Edit Employee"
+    const editEmployeeModal = document.getElementById('edit-employee-modal');
+    const closeEditEmployeeModalBtn = document.getElementById('close-edit-modal');
+    const cancelEditEmployeeModalBtn = document.getElementById('cancel-edit-btn');
 
-    modal.style.display = 'block';
-}
-
-// Закрытие модального окна "Edit Employee"
-document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-    const modal = document.getElementById('edit-employee-modal');
-    modal.style.display = 'none';
-});
-
-// Закрытие окна при клике на крестик
-document.getElementById('close-edit-modal').addEventListener('click', () => {
-    const modal = document.getElementById('edit-employee-modal');
-    modal.style.display = 'none';
-});
-
-// Закрытие окна при клике за пределами окна
-window.addEventListener('click', (event) => {
-    const modal = document.getElementById('edit-employee-modal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-// Select the edit form
-const editForm = document.getElementById('edit-employee-form');
-
-if (editForm) {
-    editForm.addEventListener('submit', function (event) {
-        event.preventDefault(); // Предотвращаем отправку формы по умолчанию
-
-        if (!selectedEmployeeId) {
-            console.error("ID сотрудника не выбран.");
+    function openEditModal(employee) {
+        if (!editEmployeeModal) {
+            console.error('Edit Employee Modal not found in DOM');
             return;
         }
 
-        // Отправка данных формы на сервер
-        fetch(`/edit/${selectedEmployeeId}`, {
-            method: 'POST',
-            body: new FormData(editForm)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    console.log('Employee updated successfully');
-                    alert('Employee updated successfully');
-                    // Закрытие модального окна
-                    editModal.style.display = 'none';
-                    // Перезагрузка страницы или обновление данных на странице
-                    location.reload();
-                } else if (data.error) {
-                    console.error('Error:', data.error);
-                    alert(`Error: ${data.error}`);
+        // Заполняем поля формы данными сотрудника
+        document.getElementById('employee-id').value = employee.id || '';
+        document.getElementById('edit-full-name').value = employee.full_name || '';
+        document.getElementById('edit-nie').value = employee.nie || '';
+        document.getElementById('edit-start-date').value = employee.start_date || '';
+        document.getElementById('edit-end-date').value = employee.end_date || '';
+        document.getElementById('edit-work-start-time').value = employee.work_start_time || '';
+        document.getElementById('edit-work-end-time').value = employee.work_end_time || '';
+        document.getElementById('edit-days-per-week').value = employee.days_per_week || '';
+        document.getElementById('edit-position').value = employee.position || '';
+        document.getElementById('edit-section').value = employee.section || '';
+        document.getElementById('edit-phone').value = employee.phone || '';
+        document.getElementById('edit-email').value = employee.email || '';
+
+        editEmployeeModal.style.display = 'block';
+    }
+
+    if (closeEditEmployeeModalBtn && cancelEditEmployeeModalBtn) {
+        closeEditEmployeeModalBtn.addEventListener('click', () => {
+            editEmployeeModal.style.display = 'none';
+        });
+
+        cancelEditEmployeeModalBtn.addEventListener('click', () => {
+            editEmployeeModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === editEmployeeModal) {
+                editEmployeeModal.style.display = 'none';
+            }
+        });
+    } else {
+        console.error("Edit Employee Modal elements not found.");
+    }
+
+    // Модальное окно "Options" (троеточие)
+    const optionsModal = document.getElementById('options-modal');
+    const optionsButtons = document.querySelectorAll('.options-btn');
+    const editBtn = document.getElementById('edit-btn');
+    const deleteBtn = document.getElementById('delete-btn');
+
+    if (optionsModal && editBtn && deleteBtn && optionsButtons.length) {
+        optionsButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const rect = button.getBoundingClientRect();
+                const modalWidth = optionsModal.offsetWidth;
+                const modalHeight = optionsModal.offsetHeight;
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                let top = rect.top + window.scrollY;
+                let left = rect.right + 10;
+
+                if (left + modalWidth > viewportWidth) {
+                    left = rect.left - modalWidth - 10; // Смещаем налево, если вылазит за экран
                 }
-            })
-            .catch(error => {
-                console.error('Error updating employee:', error);
-                alert('Failed to update employee. Please try again.');
+
+                if (top + modalHeight > viewportHeight) {
+                    top = viewportHeight - modalHeight - 10; // Смещаем вверх, если выходит за низ
+                }
+
+                optionsModal.style.top = `${top}px`;
+                optionsModal.style.left = `${left}px`;
+                optionsModal.dataset.employeeId = button.dataset.id;
+                optionsModal.classList.add('show');
             });
-    });
-} else {
-    console.error("Edit form not found in the DOM.");
-}
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!optionsModal.contains(event.target) && !event.target.classList.contains('options-btn')) {
+                optionsModal.classList.remove('show');
+            }
+        });
+
+       // Кнопка "Editar"
+        editBtn.addEventListener('click', () => {
+            const employeeId = optionsModal.dataset.employeeId;
+
+            fetch(`/employee/${employeeId}`)
+                .then(response => response.json())
+                .then(employee => {
+                    openEditModal(employee); // Открываем модальное окно с данными сотрудника
+                    optionsModal.classList.remove('show'); // Закрываем окно с опциями
+                })
+                .catch(error => console.error('Error fetching employee:', error));
+        });
+
+        // Обработчик отправки формы для редактирования
+        const editForm = document.getElementById('edit-employee-form');
+        editForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Отключаем стандартную отправку формы
+
+            const employeeId = document.getElementById('employee-id').value;
+
+            fetch(`/edit/${employeeId}`, {
+                method: 'POST',
+                body: new FormData(editForm),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert('Employee updated successfully!');
+                        location.reload(); // Обновляем страницу
+                    } else if (data.error) {
+                        alert(`Error: ${data.error}`);
+                    }
+                })
+                .catch(error => console.error('Error updating employee:', error));
+        });
+
+
+        // Кнопка "Eliminar"
+        deleteBtn.addEventListener('click', () => {
+            const employeeId = optionsModal.dataset.employeeId;
+            if (confirm('Are you sure you want to delete this employee?')) {
+                fetch(`/delete/${employeeId}`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Employee deleted successfully');
+                            location.reload();
+                        } else {
+                            alert('Failed to delete employee');
+                        }
+                    })
+                    .catch(error => console.error('Error deleting employee:', error));
+            }
+            optionsModal.classList.remove('show');
+        });
+    } else {
+        console.error("Options Modal elements or buttons not found.");
+    }
+});

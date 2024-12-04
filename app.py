@@ -294,61 +294,49 @@ def delete_employee(employee_id):
 # Редактирование сотрудника
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_employee(id):
+    # Получаем сотрудника по ID
     employee = db.session.get(Employee, id)
     if not employee:
-        return jsonify({'error': 'Empleado no encontrado'}), 404
+        return jsonify({'error': 'Сотрудник не найден'}), 404
 
     try:
-        # Основные данные сотрудника
-        employee.full_name = request.form['full_name']
-        employee.nie = request.form['nie']
-        employee.phone = request.form['phone']
-        employee.position = request.form['position']
-        employee.email = request.form['email']
-        employee.section = request.form['section']
-        employee.days_per_week = int(request.form['days_per_week'])
+        # Обновление основных данных сотрудника
+        employee.full_name = request.form.get('full_name', employee.full_name)
+        employee.nie = request.form.get('nie', employee.nie)
+        employee.phone = request.form.get('phone', employee.phone)
+        employee.position = request.form.get('position', employee.position)
+        employee.email = request.form.get('email', employee.email)
+        employee.section = request.form.get('section', employee.section)
+        employee.days_per_week = int(request.form.get('days_per_week', employee.days_per_week))
 
-        # Обработка дат начала и окончания контракта
+        # Обновление дат
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
-        if start_date_str:
-            employee.start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-        if end_date_str:
-            employee.end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-        else:
-            employee.end_date = None
+        employee.start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else employee.start_date
+        employee.end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
 
-        # Обработка рабочего диапазона времени
+        # Обновление рабочего времени
         work_start_time_str = request.form.get('work_start_time')
         work_end_time_str = request.form.get('work_end_time')
 
-        if not work_start_time_str or not work_end_time_str:
-            logging.error("Не указаны рабочие часы для редактирования.")
-            return jsonify({'error': 'No se han especificado las horas de trabajo'}), 400
-
-        # Парсинг времени начала и окончания работы
-        employee.work_start_time = datetime.strptime(work_start_time_str, '%H:%M').time()
-        employee.work_end_time = datetime.strptime(work_end_time_str, '%H:%M').time()
+        if work_start_time_str:
+            employee.work_start_time = datetime.strptime(work_start_time_str, '%H:%M').time()
+        if work_end_time_str:
+            employee.work_end_time = datetime.strptime(work_end_time_str, '%H:%M').time()
 
         # Сохранение изменений
-        try:
-            logging.info("Попытка сохранения данных в базу...")
-            db.session.commit()
-            logging.info("Данные успешно сохранены в базу.")
-        except Exception as e:
-            logging.error(f"Ошибка при сохранении данных: {e}")
-            db.session.rollback()
-            logging.info("Откат транзакции выполнен.")
+        db.session.commit()
         logging.info(f"Сотрудник {employee.full_name} успешно обновлен.")
-        return jsonify({'message': '¡Empleado actualizado con éxito!'}), 200
+        return jsonify({'message': 'Сотрудник успешно обновлен'}), 200
 
     except ValueError as e:
         logging.error(f"Ошибка при парсинге данных: {e}")
-        return jsonify({'error': 'Formato de datos incorrecto'}), 400
+        return jsonify({'error': 'Некорректный формат данных'}), 400
+
     except Exception as e:
-        logging.error(f"Ошибка при обновлении данных сотрудника: {e}")
+        logging.error(f"Ошибка при обновлении сотрудника: {e}")
         db.session.rollback()
-        return jsonify({'error': 'Error al actualizar al empleado'}), 500
+        return jsonify({'error': 'Ошибка при сохранении изменений'}), 500
 
 
 @app.route('/login')
@@ -376,23 +364,25 @@ def check_employees():
 
 @app.route('/employee/<int:employee_id>', methods=['GET'])
 def get_employee(employee_id):
-    employee = Employee.query.get(employee_id)
-    if employee:
-        return jsonify({
-            'id': employee.id,
-            'full_name': employee.full_name,
-            'position': employee.position,
-            'phone': employee.phone,
-            'email': employee.email,
-            'nie': employee.nie,
-            'start_date': employee.start_date.isoformat() if employee.start_date else '',
-            'end_date': employee.end_date.isoformat() if employee.end_date else '',
-            'work_start_time': employee.work_start_time.strftime('%H:%M') if employee.work_start_time else '',
-            'work_end_time': employee.work_end_time.strftime('%H:%M') if employee.work_end_time else '',
-            'days_per_week': employee.days_per_week,
-            'section': employee.section
-        })
-    return jsonify({'error': 'Employee not found'}), 404
+    employee = db.session.get(Employee, employee_id)
+    if not employee:
+        return jsonify({'error': 'Employee not found'}), 404
+
+    return jsonify({
+        'id': employee.id,
+        'full_name': employee.full_name,
+        'nie': employee.nie,
+        'start_date': employee.start_date.strftime('%Y-%m-%d') if employee.start_date else '',
+        'end_date': employee.end_date.strftime('%Y-%m-%d') if employee.end_date else '',
+        'work_start_time': employee.work_start_time.strftime('%H:%M') if employee.work_start_time else '',
+        'work_end_time': employee.work_end_time.strftime('%H:%M') if employee.work_end_time else '',
+        'days_per_week': employee.days_per_week,
+        'position': employee.position,
+        'section': employee.section,
+        'phone': employee.phone,
+        'email': employee.email
+    })
+
 
 @app.route('/check_in/<int:employee_id>', methods=['POST'])
 def check_in(employee_id):

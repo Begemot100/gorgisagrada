@@ -32,17 +32,26 @@
 
             <label for="position">Position</label>
             <select id="position" name="position" required>
-                <option value="Waiter">Waiter</option>
-                <option value="Admin">Admin</option>
-                <option value="Cleaning lady">Cleaning lady</option>
-                <option value="Bartender">Bartender</option>
+                <optgroup label="Sala">
+                    <option value="Barman">Barman</option>
+                    <option value="Camarero">Camarero</option>
+                    <option value="Audante de camarero">Audante de camarero</option>
+                    <option value="Administrador">Administrador</option>
+                </optgroup>
+                <optgroup label="Cocina">
+                    <option value="Chef">Chef</option>
+                    <option value="Su-Chef">Su-Chef</option>
+                    <option value="Cocinero">Cocinero</option>
+                    <option value="Audante de cocina">Audante de cocina</option>
+                    <option value="Limpiadora">Limpiadora</option>
+                </optgroup>
             </select>
+
             <label for="section">Section</label>
             <select id="section" name="section" required>
                 <option value="Sala">Sala</option>
                 <option value="Cocina">Cocina</option>
             </select>
-
 
             <label for="phone">Phone number</label>
             <input type="text" id="phone" name="phone" placeholder="Type here" required>
