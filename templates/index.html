@@ -62,7 +62,7 @@
 
             <div class="employee-list">
                 {% for employee in employees %}
-                <div class="employee-card">
+                <div class="employee-card" data-section = "{{ employee.section }}">
                     <div class="employee-row">
                         <span class="employee-item">{{ employee.full_name }}</span>
                         <span class="employee-item">{{ employee.position }}</span>

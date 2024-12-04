@@ -190,3 +190,33 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error("Options Modal elements or buttons not found.");
     }
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const employeeCards = document.querySelectorAll('.employee-card');
+
+    if (filterButtons && employeeCards) {
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const filter = button.getAttribute('data-filter');
+
+                // Убираем активный класс у всех кнопок
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Фильтруем сотрудников
+                employeeCards.forEach(employee => {
+                    const section = employee.getAttribute('data-section').toLowerCase(); // Приводим к нижнему регистру
+                    if (filter === 'all' || section === filter) {
+                        employee.style.display = 'flex'; // Показываем сотрудника
+                    } else {
+                        employee.style.display = 'none'; // Скрываем сотрудника
+                    }
+                });
+            });
+        });
+    } else {
+        console.error('Filter buttons or employee cards not found.');
+    }
+});

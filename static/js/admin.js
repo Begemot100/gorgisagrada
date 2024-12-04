@@ -171,3 +171,4 @@ window.addEventListener('click', (event) => {
         editModal.style.display = 'none';
     }
 });
+
