@@ -74,7 +74,9 @@ button {
 }
 
 .check-in-btn {
-    background-color: #28a745; /* Зеленый */
+    background-color: #FC8C86;
+    border-radius: 10px;
+
     color: white;
 }
 
@@ -84,7 +86,8 @@ button {
 }
 
 .check-out-btn {
-    background-color: #dc3545; /* Красный */
+    background-color: #FC8C86; 
+    border-radius: 10px;
     color: white;
 }
 

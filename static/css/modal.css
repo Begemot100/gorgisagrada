@@ -50,7 +50,7 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
 }
 
@@ -92,7 +92,7 @@
 }
 
 .form-buttons .save-btn {
-    background-color: #ff6b6b;
+    background-color: #FC8C86;
     color: #fff;
 }
 
