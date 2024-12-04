@@ -31,7 +31,9 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = '6006'
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=4)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/germany/Desktop/sagrada/pythonProject1/instance/employees.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL', 'sqlite:////Users/germany/Desktop/sagrada/pythonProject1/instance/employees.db'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
