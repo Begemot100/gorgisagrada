@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 # Настройка базы данных: используем DATABASE_URL, если доступно, или SQLite для локальной разработки
-db_url = os.getenv('DATABASE_URL')
+database_url = os.getenv('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
@@ -81,7 +81,7 @@ class Employee(db.Model):
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=True)
     # hours_per_week = db.Column(db.Integer, nullable=False)
-    days_per_week = db.Column(db.Integer, nullable=False)
+    days_per_week = db.Column(db.Integer, nullable=False, default=5)
     position = db.Column(db.String(50), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100), nullable=False)
@@ -124,11 +124,11 @@ class WorkLog(db.Model):
 def home():
     return render_template('home.html')
 
-@app.route('/index')
-def index():
-    if not session.get('admin_logged_in'):
-        return redirect('/admin_login')  # Перенаправление на страницу входа, если администратор не авторизован
-    return render_template('index.html')  # Отображаем index.html
+# @app.route('/login1')
+# def index():
+#     if not session.get('admin_logged_in'):
+#         return redirect('/admin_login')  # Перенаправление на страницу входа, если администратор не авторизован
+#     return render_template('index.html')  # Отображаем index.html
 
 @app.route('/admin_register', methods=['GET', 'POST'])
 def admin_register():
@@ -169,7 +169,7 @@ def admin_login():
         session['admin_logged_in'] = True
         session['admin_email'] = admin.email
 
-        return redirect('/index')  # Перенаправляем на страницу index.html
+        return redirect('/login')  # Перенаправляем на страницу index.html
 
     return render_template('admin_login.html')  # HTML-страница для входа
 
@@ -234,10 +234,10 @@ def worker_logout():
 def add_employee():
     nie = request.form.get('nie')
 
-    # Проверка дублирующего сотрудника
-    existing_employee = Employee.query.filter_by(nie=nie).first()
-    if existing_employee:
-        return jsonify({'error': 'Employee with this NIE already exists'}), 400
+    # # Проверка дублирующего сотрудника
+    # existing_employee = Employee.query.filter_by(nie=nie).first()
+    # if existing_employee:
+    #     return jsonify({'error': 'Employee with this NIE already exists'}), 400
 
     # Сбор остальных данных
     full_name = request.form.get('full_name')
