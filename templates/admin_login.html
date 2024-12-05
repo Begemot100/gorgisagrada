@@ -52,7 +52,7 @@
         .login-btn {
             width: 100%;
             padding: 12px;
-            background-color: #ff6b6b;
+            background-color: #FC8C86;
             border: none;
             border-radius: 8px;
             color: #ffffff;
@@ -60,9 +60,29 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-bottom: 10px;
         }
 
         .login-btn:hover {
+            background-color: #ff5252;
+        }
+
+        .register-btn {
+            width: 95%;
+            padding: 12px;
+            background-color: #FC8C86;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .register-btn:hover {
             background-color: #ff5252;
         }
     </style>
@@ -79,6 +99,7 @@
 
             <button type="submit" class="login-btn">Iniciar sesión</button>
         </form>
+        <a href="/admin_register" class="register-btn">Registrar Administrador</a>
     </div>
 </body>
 </html>
