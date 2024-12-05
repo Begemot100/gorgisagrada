@@ -234,10 +234,10 @@ def worker_logout():
 def add_employee():
     nie = request.form.get('nie')
 
-    # # Проверка дублирующего сотрудника
-    # existing_employee = Employee.query.filter_by(nie=nie).first()
-    # if existing_employee:
-    #     return jsonify({'error': 'Employee with this NIE already exists'}), 400
+    # Проверка дублирующего сотрудника
+    existing_employee = Employee.query.filter_by(nie=nie).first()
+    if existing_employee:
+        return jsonify({'error': 'Employee with this NIE already exists'}), 400
 
     # Сбор остальных данных
     full_name = request.form.get('full_name')
