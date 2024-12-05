@@ -839,6 +839,60 @@ def export_excel():
     # Return the file as a response
     return send_file(file_path, as_attachment=True, download_name="employee_logs.xlsx")
 
+@app.route('/export_employees_excel', methods=['POST'])
+def export_employees_excel():
+    # Get employee IDs from the request
+    employee_ids = request.json.get('employeeIds', [])
+
+    if not employee_ids:
+        return {"message": "No employees selected for export."}, 400
+
+    # Fetch employees from the database based on the IDs provided
+    employees = Employee.query.filter(Employee.id.in_(employee_ids)).all()
+
+    # Create Excel file
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Filtered Employees"
+
+    # Define styles
+    bold_font = Font(bold=True)
+    center_alignment = Alignment(horizontal="center")
+
+    # Write headers
+    headers = ["ID", "Name", "Position", "NIE", "Phone", "Email", "Start Date", "Start Time", "End Time"]
+    for col, header in enumerate(headers, start=1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = bold_font
+        cell.alignment = center_alignment
+
+    # Write employee data
+    for row, employee in enumerate(employees, start=2):
+        ws.cell(row=row, column=1, value=employee.id)
+        ws.cell(row=row, column=2, value=employee.full_name)
+        ws.cell(row=row, column=3, value=employee.position)
+        ws.cell(row=row, column=4, value=employee.nie)
+        ws.cell(row=row, column=5, value=employee.phone)
+        ws.cell(row=row, column=6, value=employee.email)
+        ws.cell(row=row, column=7, value=employee.start_date.strftime('%Y-%m-%d') if employee.start_date else '')
+        ws.cell(row=row, column=8, value=employee.work_start_time.strftime('%H:%M') if employee.work_start_time else '')
+        ws.cell(row=row, column=9, value=employee.work_end_time.strftime('%H:%M') if employee.work_end_time else '')
+
+    # Adjust column widths
+    for col in ws.columns:
+        max_length = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = max_length + 2
+
+    # Save the file
+    file_path = os.path.join("instance", "filtered_employees.xlsx")
+    wb.save(file_path)
+
+    # Return the file as a response
+    return send_file(file_path, as_attachment=True, download_name="filtered_employees.xlsx")
 
 # Инициализация планировщика
 scheduler = BackgroundScheduler()

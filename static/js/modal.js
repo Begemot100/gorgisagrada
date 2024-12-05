@@ -220,3 +220,53 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Filter buttons or employee cards not found.');
     }
 });
+document.getElementById('export-excel-admin-btn').addEventListener('click', () => {
+    // Collect IDs of displayed employees with the "data-id" attribute
+    const selectedEmployees = Array.from(document.querySelectorAll('.employee-card')).filter(card => {
+        // Check if the card is visible based on filters
+        const isVisible = card.style.display !== 'none';
+        return isVisible; // Only include visible cards
+    }).map(card => {
+        const employeeId = card.getAttribute('data-id'); // Get the employee ID
+        return employeeId;
+    });
+
+    // Filter out null or undefined IDs
+    const validEmployeeIds = selectedEmployees.filter(id => id);
+
+    if (validEmployeeIds.length === 0) {
+        alert('No employees selected for export.');
+        return;
+    }
+
+    // Send the request to the backend
+    fetch('/export_employees_excel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ employeeIds: validEmployeeIds }),
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Failed to export Excel file.');
+                });
+            }
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'filtered_employees_data.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(error => {
+            alert(error.message);
+            console.error('Export Excel Error:', error);
+        });
+});

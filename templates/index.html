@@ -57,12 +57,13 @@
                 <button class="filter-btn active" data-filter="all">All</button>
                 <button class="filter-btn" data-filter="sala">Sala</button>
                 <button class="filter-btn" data-filter="cocina">Cocina</button>
+                <button class="export-btn" id="export-excel-admin-btn">Export to Excel</button>
                 <button class="add-employee-btn" id="open-modal-btn">+ Nuevo empleado</button>
             </div>
 
             <div class="employee-list">
                 {% for employee in employees %}
-                <div class="employee-card" data-section = "{{ employee.section }}">
+                <div class="employee-card"  data-id="{{ employee.id }}" data-section = "{{ employee.section }}">
                     <div class="employee-row">
                         <span class="employee-item">{{ employee.full_name }}</span>
                         <span class="employee-item">{{ employee.position }}</span>
