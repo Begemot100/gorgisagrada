@@ -80,6 +80,8 @@
                                         <th>Salida</th>
                                         <th>Total</th>
                                         <th>Vacaciones</th>
+<!--                                        <td><input type="checkbox" class="date-checkbox"></td>-->
+
                                         <th class="checkbox-column hidden">Выбрать</th>
                                     </tr>
                                 </thead>
@@ -109,6 +111,7 @@
 
                                         <td class="checkbox-cell hidden">
                                             <input type="checkbox" class="date-checkbox" id="log-{{ log.id }}">
+
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -206,10 +209,6 @@
             {% include 'filter_modal.html' %}
         </div>
 
-
-
-
-
-
 </body>
 </html>
+<!---->
