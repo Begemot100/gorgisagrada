@@ -507,8 +507,8 @@ def calculate_hours(check_in, check_out):
 @app.route('/board')
 def board():
     # Проверяем, авторизован ли работник
-    if not session.get('worker_logged_in'):
-        return redirect('/worker_login')  # Если работник не авторизован, перенаправляем на вход
+    # if not session.get('worker_logged_in'):
+    #     return redirect('/worker_login')  # Если работник не авторизован, перенаправляем на вход
 
     # Получаем всех сотрудников
     employees = Employee.query.all()
