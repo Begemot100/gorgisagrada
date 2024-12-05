@@ -270,3 +270,104 @@ document.getElementById('export-excel-admin-btn').addEventListener('click', () =
             console.error('Export Excel Error:', error);
         });
 });
+//function openFilterModal() {
+//    const hoyButton = document.getElementById('hoyButton');
+//    const filterModal = document.getElementById('filterModal');
+//
+//    // Определяем позицию кнопки Hoy
+//    const rect = hoyButton.getBoundingClientRect();
+//
+//    // Устанавливаем координаты модального окна под кнопкой Hoy
+//    filterModal.style.top = `${rect.bottom + window.scrollY + 5}px`; // Немного отступаем от нижней границы
+//    filterModal.style.left = `${rect.left + window.scrollX}px`;
+//
+//    // Показываем модальное окно
+//    filterModal.style.display = 'block';
+//}
+//
+//function closeFilterModal() {
+//    const filterModal = document.getElementById('filterModal');
+//    filterModal.style.display = 'none';
+//}
+//
+//function applyFilter(filter) {
+//    console.log(`Filter applied: ${filter}`);
+//    closeFilterModal();
+//}
+//
+//function applyCustomRange() {
+//    console.log('Custom range selected');
+//}
+//function toggleFilterModal(button) {
+//    const filterModal = document.getElementById('filterModal');
+//
+//    // Позиционирование модального окна под кнопкой
+//    const rect = button.getBoundingClientRect();
+//    filterModal.style.top = `${rect.bottom + window.scrollY}px`;
+//    filterModal.style.left = `${rect.left + window.scrollX}px`;
+//
+//    // Показ/скрытие модального окна
+//    filterModal.classList.toggle('hidden');
+//}
+
+function applyFilter(filterType) {
+    const filterButton = document.getElementById('filterButton');
+    let filterText = '';
+
+    // Определение текста для каждого фильтра
+    switch (filterType) {
+        case 'today':
+            filterText = 'Hoy';
+            break;
+        case 'yesterday':
+            filterText = 'Ayer';
+            break;
+        case 'last7days':
+            filterText = 'Últimos 7 días';
+            break;
+        case 'last30days':
+            filterText = 'Últimos 30 días';
+            break;
+        case 'thismonth':
+            filterText = 'Este mes';
+            break;
+        case 'lastmonth':
+            filterText = 'Mes Anterior';
+            break;
+        default:
+            filterText = 'Rango Personalizado';
+    }
+
+    // Обновление текста кнопки
+    filterButton.textContent = filterText;
+
+    // Логика для применения фильтра
+    console.log(`Filter applied: ${filterType}`);
+
+    // Закрытие модального окна
+    closeFilterModal();
+}
+
+function closeFilterModal() {
+    const filterModal = document.getElementById('filterModal');
+    filterModal.classList.add('hidden');
+}
+
+function applyCustomRange() {
+    const customRangeInputs = document.getElementById('customRangeInputs');
+    customRangeInputs.style.display = 'block';
+}
+
+function applyCustomDateRange() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    // Обновление текста кнопки на основе диапазона
+    const filterButton = document.getElementById('filterButton');
+    filterButton.textContent = `${startDate} - ${endDate}`;
+
+    console.log(`Custom range applied: ${startDate} to ${endDate}`);
+
+    // Скрытие модального окна
+    closeFilterModal();
+}

@@ -1,33 +1,80 @@
-/* Уникальные стили для модального окна */
-#filterModal.filter-modal {
-    display: block; /* Скрыто по умолчанию */
-    position: absolute; /* Абсолютное позиционирование */
-    z-index: 1000; /* Высокий уровень отображения */
-    background-color: #fff; /* Белый фон */
-    border-radius: 8px; /* Скругленные углы */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Тень */
-    width: 200px; /* Ширина окна */
-}
-
-/* Стили содержимого */
-#filterModal .filter-modal-content {
+/* Общий стиль модального окна */
+.filter-modal {
+    position: absolute;
+    z-index: 1000;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
     padding: 10px;
-    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100px;
 }
 
-/* Уникальные стили для списка */
-#filterModal .filter-modal-list {
+/* Скрытое состояние */
+.hidden {
+    display: none;
+}
+
+/* Стили списка фильтров */
+.filter-list {
     list-style: none;
-    margin: 0;
     padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-#filterModal .filter-modal-list li {
-    padding: 10px 20px;
+.filter-list li {
+    padding: 8px 10px;
     cursor: pointer;
-    border-bottom: 1px solid #ddd;
+
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#filterModal .filter-modal-list li:hover {
+.filter-list li:hover {
     background-color: #f5f5f5;
+}
+
+/* Стили для диапазона дат */
+#customRangeInputs {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#customRangeInputs label {
+    font-size: 12px;
+    color: #555;
+}
+
+#customRangeInputs input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+}
+
+#customRangeInputs button {
+    padding: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#customRangeInputs button:hover {
+    background-color: #45a049;
 }

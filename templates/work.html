@@ -36,7 +36,7 @@
                 <div class="left-buttons">
                     <button id="filterButton" class="filter-btn" onclick="toggleFilterModal(this)">Hoy</button>
                     <button class="filter-btn">Grupo</button>
-                    <button class="filter-btn" onclick="resetFilter()">Restablecer filtro</button>
+<!--                    <button class="filter-btn" onclick="resetFilter()">Restablecer filtro</button>-->
                 </div>
                 <div class="right-buttons">
                     <button class="ellipsis-btn" onclick="toggleDropdown()">
@@ -128,7 +128,7 @@
                         <!-- Summary Panel (Always Visible) -->
                         <div class="summary-panel">
                             <h3>Summary</h3>
-                            <p><strong>Total hours:</strong> <span>{{ employee_data.total_hours }}</span></p>
+                            <p><strong>Total hours:</strong> {{ employee_data.total_hours | format_hours }}</p>
                             <p><strong>Total days:</strong> <span>{{ employee_data.total_days }}</span></p>
                             <p><strong>Overtime:</strong> <span>{{ employee_data.overtime }}</span></p>
                             <div class="holiday-status">

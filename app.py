@@ -111,7 +111,7 @@ class WorkLog(db.Model):
     def calculate_worked_hours(self):
         if self.check_in_time and self.check_out_time:
             time_diff = self.check_out_time - self.check_in_time
-            return time_diff.total_seconds() / 3600  # Возвращаем количество часов
+            return round(time_diff.total_seconds() / 3600, 2)
         return 0
 
 @app.route('/')
@@ -630,7 +630,7 @@ def work():
                 'worked_hours': log.worked_hours or 0,
                 'holidays': log.holidays
             } for log in logs],
-            'total_hours': f"{sum(log.worked_hours or 0 for log in logs):.2f}",
+            'total_hours': round(sum(log.worked_hours or 0 for log in logs), 2),
             'total_days': len(logs),
             'paid_holidays': paid_holidays,
             'unpaid_holidays': unpaid_holidays,
@@ -709,7 +709,7 @@ def update_log_time(log_id):
     work_log.check_out_time = check_out_time_obj
 
     # Вычисляем worked_hours
-    worked_hours = (check_out_time_obj - check_in_time_obj).seconds / 3600.0
+    worked_hours = (check_out_time_obj - check_in_time_obj).total_seconds() / 3600.0
     work_log.worked_hours = round(worked_hours, 2)
 
     # Сохраняем изменения
