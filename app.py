@@ -17,31 +17,29 @@ from collections import defaultdict
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import hashlib
+import openpyxl
+
 
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
-
-# Настройка ключа приложения
-app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
+app.secret_key = os.getenv('SECRET_KEY', '6006')
 
 # Настройка базы данных
 database_url = os.getenv('DATABASE_URL')
+
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+# Если DATABASE_URL не задан, используем SQLite для локальной разработки
+if not database_url:
+    database_url = f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'employees.db')}"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
-
-# Убедитесь, что таблицы создаются только локально
-if not database_url:
-    with app.app_context():
-        db.create_all()
-
 # Инициализация базы данных и миграций
-# db = SQLAlchemy(app)
+db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 class Admin(db.Model):
@@ -742,50 +740,105 @@ def add_missing_logs():
     db.session.commit()
 
 
-@app.route('/export', methods=['POST'])
-def export_to_excel():
-    from io import BytesIO
-    import pandas as pd
 
-    selected_log_ids = request.json.get('selected_logs', [])
-    if not selected_log_ids:
-        return jsonify({'error': 'No logs selected'}), 400
 
-    logs = WorkLog.query.filter(WorkLog.id.in_(selected_log_ids)).all()
 
-    if not logs:
-        return jsonify({'error': 'No data found for selected logs'}), 404
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment
+from openpyxl.utils import get_column_letter
+from flask import send_file
+import os
 
-    grouped_logs = {}
-    for log in logs:
-        employee = log.employee
-        if employee.id not in grouped_logs:
-            grouped_logs[employee.id] = {
-                'employee': f"{employee.full_name} - {employee.position} {employee.nie}",
-                'logs': []
-            }
-        grouped_logs[employee.id]['logs'].append(log)
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment
+from openpyxl.utils import get_column_letter
+from flask import send_file, request
+import os
 
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        for employee_id, data in grouped_logs.items():
-            logs_data = []
-            for log in data['logs']:
-                logs_data.append({
-                    'Date': log.log_date.strftime('%Y-%m-%d') if log.log_date else '--',
-                    'Entrada': log.check_in_time or '--',
-                    'Salida Comida': '--',
-                    'Salida': log.check_out_time or '--',
-                    'Total Day Hours': log.worked_hours or '0:00',
-                    'Holiday Type': log.holidays or 'Working day',
-                    'Days Worked': 1 if log.holidays == 'workingday' else 0
-                })
+@app.route('/export_excel', methods=['POST'])
+def export_excel():
+    selected_employees = request.json.get('selectedEmployees', [])
 
-            logs_df = pd.DataFrame(logs_data)
-            logs_df.to_excel(writer, index=False, sheet_name=data['employee'][:31])
+    if not selected_employees:
+        return {"message": "No employees selected"}, 400
 
-    output.seek(0)
-    return send_file(output, as_attachment=True, download_name='work_logs.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    # Fetch data for selected employees
+    employees_data = []
+    for employee_id in selected_employees:
+        employee = Employee.query.get(employee_id)
+        if employee:
+            logs = WorkLog.query.filter_by(employee_id=employee_id).all()
+            employees_data.append({
+                "employee": employee,
+                "logs": logs
+            })
+
+    # Create an Excel Workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Employee Logs"
+
+    # Define styles
+    bold_font = Font(bold=True)
+    center_alignment = Alignment(horizontal="center")
+
+    # Start populating the Excel sheet
+    row = 1
+    for data in employees_data:
+        employee = data["employee"]
+        logs = data["logs"]
+
+        # Employee Header
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=6)
+        ws.cell(row=row, column=1, value=f"{employee.full_name} - {employee.position} {employee.nie}")
+        ws.cell(row=row, column=1).font = bold_font
+        row += 1
+
+        # Table Header
+        headers = ["Date", "Entrada", "Salida", "Total Day Hours", "Holiday Type", "Days Worked"]
+        for col, header in enumerate(headers, start=1):
+            cell = ws.cell(row=row, column=col, value=header)
+            cell.font = bold_font
+            cell.alignment = center_alignment
+        row += 1
+
+        # Add logs
+        for log in logs:
+            ws.cell(row=row, column=1, value=log.log_date.strftime('%Y-%m-%d'))
+            ws.cell(row=row, column=2, value=log.check_in_time or '--:--')
+            ws.cell(row=row, column=3, value=log.check_out_time or '--:--')
+            ws.cell(row=row, column=4, value=log.worked_hours or "0:00")
+            ws.cell(row=row, column=5, value=log.holidays.capitalize() if log.holidays else "Working day")
+            ws.cell(row=row, column=6, value=1 if log.worked_hours else 0)
+            row += 1
+
+        # Summary Section
+        total_days = sum(1 for log in logs if log.worked_hours)
+        total_hours = sum(log.worked_hours for log in logs if log.worked_hours)
+        ws.cell(row=row, column=5, value="Total Worked Days")
+        ws.cell(row=row, column=6, value=total_days)
+        row += 1
+
+        ws.cell(row=row, column=5, value="Total Hours")
+        ws.cell(row=row, column=6, value=f"{total_hours} hours")
+        row += 3  # Space between employees (2 lines + 1 extra increment)
+
+    # Adjust column widths
+    for col in ws.columns:
+        max_length = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = max_length + 2  # Adding padding
+
+    # Save the Excel file
+    file_path = os.path.join("instance", "employee_logs.xlsx")
+    wb.save(file_path)
+
+    # Return the file as a response
+    return send_file(file_path, as_attachment=True, download_name="employee_logs.xlsx")
+
 
 # Инициализация планировщика
 scheduler = BackgroundScheduler()

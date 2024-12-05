@@ -1,76 +1,42 @@
-document.querySelectorAll('.date-checkbox').forEach((checkbox, index) => {
-    console.log(`Чекбокс ${index + 1}: ID=${checkbox.id}, Видимость=${checkbox.offsetParent !== null}`);
-});
-
-
-function exportToExcel() {
-    const selectedLogs = [];
-    const logCheckboxes = document.querySelectorAll('.date-checkbox');
-
-    logCheckboxes.forEach(checkbox => {
-        if (checkbox.checked) {
-            const logRow = checkbox.closest('tr');
-            if (logRow) {
-                selectedLogs.push({
-                    date: logRow.cells[0].innerText.trim(),
-                    entrada: logRow.cells[1].innerText.trim(),
-                    salida: logRow.cells[2].innerText.trim(),
-                    total: logRow.cells[3].innerText.trim(),
-                    vacaciones: logRow.cells[4].innerText.trim(),
-                });
-            }
-        }
+document.getElementById('export-excel-btn').addEventListener('click', () => {
+    const selectedEmployees = Array.from(document.querySelectorAll('.employee-checkbox:checked')).map(checkbox => {
+        return checkbox.id.replace('employee_', '');
     });
 
-    console.log("Выбранные логи для экспорта:", selectedLogs);
+    if (selectedEmployees.length === 0) {
+        alert('Please select at least one employee to export.');
+        return;
+    }
 
-    if (selectedLogs.length > 0) {
-        // Отправка данных на сервер
-        fetch('/export_to_excel', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ logs: selectedLogs }), // Передача выбранных логов
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.blob(); // Получение файла в формате Blob
-                } else {
-                    console.error("Ошибка при экспорте:", response.statusText);
-                    throw new Error('Ошибка при экспорте данных.');
-                }
-            })
-            .then(blob => {
-                // Создание ссылки для скачивания файла
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'work_logs.xlsx'; // Имя загружаемого файла
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                window.URL.revokeObjectURL(url); // Освобождение ресурса
-                console.log("Файл успешно скачан.");
-            })
-            .catch(error => {
-                console.error("Ошибка при экспорте:", error);
-                alert('Произошла ошибка при экспорте данных.');
+    fetch('/export_excel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ selectedEmployees }),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        } else {
+            return response.json().then(data => {
+                throw new Error(data.message || 'Failed to export Excel file.');
             });
-    } else {
-        alert('Нет выбранных логов для экспорта.');
-    }
-}
-
-// Привязка функции к кнопке экспорта
-document.addEventListener('DOMContentLoaded', () => {
-    const exportButton = document.getElementById('export-excel-btn');
-    if (exportButton) {
-        exportButton.addEventListener('click', exportToExcel);
-        console.log("Кнопка 'Exportar a Excel' успешно подключена.");
-    } else {
-        console.error("Кнопка 'Exportar a Excel' не найдена.");
-    }
+        }
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'employee_logs.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    })
+    .catch(error => {
+        alert(error.message);
+        console.error('Export Excel Error:', error);
+    });
 });
 
 
@@ -781,17 +747,3 @@ setInterval(() => {
     });
 }, 5000);
 
-//document.addEventListener('DOMContentLoaded', () => {
-//    // Кнопка экспорта
-//    const exportButton = document.getElementById('export-excel-btn');
-//    if (!exportButton) {
-//        console.error("Кнопка 'Exportar a Excel' не найдена."); // Если кнопка не найдена, проверьте её ID в HTML.
-//    } else {
-//        console.log("Кнопка 'Exportar a Excel' найдена."); // Этот лог должен появиться.
-//    }
-//
-//
-//    // Функция экспорта логов в Excel
-//
-//
-//    // Проверка чекбоксов
