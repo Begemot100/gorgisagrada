@@ -27,14 +27,14 @@
     top: 10px;
     right: 15px;
     font-size: 20px;
-    color: #555555;
+    color: #FC8C86;
     background: none;
     border: none;
     cursor: pointer;
 }
 
 .modal .close-btn:hover {
-    color: #000000; /* Темнее при наведении */
+    color: #FC8C86; /* Темнее при наведении */
 }
 
 /* Стили для полей ввода */
@@ -69,7 +69,7 @@
     font-size: 1em;
     font-weight: bold;
     color: #ffffff;
-    background-color: #007BFF; /* Синий фон */
+    background-color: #FC8C86; /* Синий фон */
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -77,5 +77,5 @@
 }
 
 .modal-content button:hover {
-    background-color: #0056b3; /* Темно-синий при наведении */
+    background-color: #FC8C86; /* Темно-синий при наведении */
 }

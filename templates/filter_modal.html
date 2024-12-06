@@ -8,4 +8,13 @@
         <li onclick="applyFilter('lastmonth')">Mes Anterior</li>
         <li onclick="applyCustomRange()">Rango Personalizado</li>
     </ul>
+
+    <div id="dateRangeContainer" class="hidden">
+        <label for="startDate">Fecha inicio:</label>
+        <input type="date" id="startDate" />
+        <label for="endDate">Fecha fin:</label>
+        <input type="date" id="endDate" />
+        <button onclick="applyCustomDateRange()">Aplicar</button>
+    </div>
+    <p id="selectedDateRange" class="hidden">Rango seleccionado: <span id="displayDateRange"></span></p>
 </div>

@@ -546,22 +546,23 @@ from datetime import datetime, timedelta, date
 from sqlalchemy import and_
 import logging
 
+
 @app.route('/work', methods=['GET'])
 def work():
     # Получение фильтров из запроса
     group = request.args.get('group')  # Получаем выбранную группу
-    filter_type = request.args.get('filter', 'thismonth')  # Тип фильтра: today, yesterday, last7days, last30days, thismonth, lastmonth
     start_date_str = request.args.get('start_date')  # Пользовательский диапазон
-    end_date_str = request.args.get('end_date')
-    logging.info(f"Применен фильтр: {filter_type}")
+    end_date_str = request.args.get('end_date')  # Пользовательский диапазон
+    filter_type = request.args.get('filter', 'thismonth')  # Тип фильтра: today, yesterday, last7days и т.д.
 
-    if group:
-        employees_query = employees_query.filter_by(section=group)
-
-    employees = Employee.query.all()
-    for employee in employees:
-        print(f"Employee: {employee.full_name}, Section: {employee.section}")
     today = date.today()
+    employees_query = Employee.query  # Инициализируем запрос к базе
+
+    # Фильтрация по группе
+    if group:
+        employees_query = employees_query.filter(Employee.section == group)
+
+    employees = employees_query.all()
     employee_logs = []
 
     # Логика фильтрации по дате
@@ -582,31 +583,15 @@ def work():
         start_date = today - timedelta(days=30)
         end_date = today
     elif filter_type == 'thismonth':
-        start_date = today.replace(day=1)  # Первый день текущего месяца
-        next_month = today.replace(day=28) + timedelta(days=4)  # Переход к следующему месяцу
-        end_date = next_month.replace(day=1) - timedelta(days=1)  # Последний день текущего месяца
+        start_date = today.replace(day=1)
+        end_date = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
     elif filter_type == 'lastmonth':
         first_day_of_this_month = today.replace(day=1)
         last_day_of_last_month = first_day_of_this_month - timedelta(days=1)
-        start_date = last_day_of_last_month.replace(day=1)  # Первый день предыдущего месяца
-        end_date = last_day_of_last_month  # Последний день предыдущего месяца
+        start_date = last_day_of_last_month.replace(day=1)
+        end_date = last_day_of_last_month
     else:
-        start_date = end_date = today  # По умолчанию сегодня
-
-    # Проверяем и создаем лог за сегодняшний день, если отсутствует
-    for employee in employees:
-        existing_log = WorkLog.query.filter_by(employee_id=employee.id, log_date=today).first()
-        if not existing_log:
-            new_log = WorkLog(
-                employee_id=employee.id,
-                log_date=today,
-                check_in_time=None,
-                check_out_time=None,
-                worked_hours=0
-            )
-            db.session.add(new_log)
-
-    db.session.commit()
+        start_date = end_date = today
 
     # Формируем данные для шаблона
     for employee in employees:
@@ -627,8 +612,7 @@ def work():
                 'id': employee.id,
                 'full_name': employee.full_name,
                 'position': employee.position,
-                'section': employee.section  # Передаем секцию
-
+                'section': employee.section  # Передаем секцию для отображения
             },
             'work_logs': [{
                 'id': log.id,
@@ -644,11 +628,12 @@ def work():
             'unpaid_holidays': unpaid_holidays,
         })
 
-    # Возврат данных для шаблона или в формате JSON
-    if request.headers.get('Accept') == 'application/json':
-        return jsonify(employee_logs)
-    else:
-        return render_template("work.html", employees=employee_logs, today=today)
+    # Если запрос через JavaScript, возвращаем только HTML для логов
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('partials/work_logs.html', employees=employee_logs)
+
+    # Для обычного запроса возвращаем полный HTML
+    return render_template("work.html", employees=employee_logs, today=today)
 
 
 @app.route('/update_holiday_status/<int:log_id>', methods=['POST'])

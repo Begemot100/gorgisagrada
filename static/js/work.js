@@ -747,3 +747,31 @@ setInterval(() => {
     });
 }, 5000);
 
+function applyCustomRange() {
+    const dateRangeContainer = document.getElementById("dateRangeContainer");
+    const selectedDateRange = document.getElementById("selectedDateRange");
+    dateRangeContainer.classList.remove("hidden");
+    selectedDateRange.classList.add("hidden");
+}
+
+function applyCustomDateRange() {
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+
+    if (startDate && endDate) {
+        // Отправляем выбранные даты на сервер или применяем фильтрацию
+        window.location.href = `/work?start_date=${startDate}&end_date=${endDate}`;
+
+        // Закрываем модальное окно
+        closeFilterModal();
+    } else {
+        alert("Por favor selecciona ambas fechas");
+    }
+}
+
+function closeFilterModal() {
+    const modal = document.getElementById('filterModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}

@@ -78,3 +78,18 @@
 #customRangeInputs button:hover {
     background-color: #45a049;
 }
+.hidden {
+    display: none;
+}
+
+#dateRangeContainer {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#selectedDateRange {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+}

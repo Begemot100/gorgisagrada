@@ -46,7 +46,7 @@
                     </button>
                     <div id="dropdown-menu" class="dropdown-menu hidden">
                         <ul>
-                            <li id="choose-all-btn">ChooseAll</li>
+                            <li id="choose-all-btn">Todo</li>
                             <li id="edit-btn">Editar</li>
                             <li id="export-excel-btn">Exportar a Excel</li>
                             <li id="random-btn">Random</li>
@@ -122,8 +122,8 @@
 
                             <!-- Action Buttons -->
                             <div class="action-buttons hidden" id="action-buttons-{{ employee_data.employee.id }}">
-                                <button class="select-all-btn" onclick="selectAllEmployeeCheckboxes('{{ employee_data.employee.id }}')">Выбрать все</button>
-                                <button class="new-schedule-btn" onclick="openNewScheduleModal()">Новое расписание</button>
+                                <button class="select-all-btn" onclick="selectAllEmployeeCheckboxes('{{ employee_data.employee.id }}')">All</button>
+                                <button class="new-schedule-btn" onclick="openNewScheduleModal()">Random</button>
                             </div>
                         </div>
 
