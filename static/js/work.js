@@ -437,24 +437,26 @@ function updateHolidayStatus(logId, selectElement) {
 
 // Function to update the background color of the select element
 function updateSelectBackground(selectElement) {
-    switch (selectElement.value) {
-        case "paid":
-            selectElement.style.backgroundColor = "#FEDB5B"; // Желтый
-            selectElement.style.color = "#000000"; // Черный текст
+    const value = selectElement.value;
+    switch (value) {
+        case 'paid':
+            selectElement.style.backgroundColor = '#FEDB5B'; // Желтый
+            selectElement.style.color = '#000'; // Черный текст
             break;
-        case "unpaid":
-            selectElement.style.backgroundColor = "#DD8137"; // Оранжевый
-            selectElement.style.color = "#FFFFFF"; // Белый текст
+        case 'unpaid':
+            selectElement.style.backgroundColor = '#DD8137'; // Оранжевый
+            selectElement.style.color = '#FFF'; // Белый текст
             break;
-        case "weekend":
-            selectElement.style.backgroundColor = "#A6A6A6"; // Серый
-            selectElement.style.color = "#FFFFFF"; // Белый текст
+        case 'weekend':
+            selectElement.style.backgroundColor = '#A6A6A6'; // Серый
+            selectElement.style.color = '#FFF'; // Белый текст
             break;
         default:
-            selectElement.style.backgroundColor = ""; // Убираем фон
-            selectElement.style.color = ""; // Сбрасываем цвет текста
+            selectElement.style.backgroundColor = ''; // Убираем фон
+            selectElement.style.color = ''; // Сбрасываем цвет текста
     }
 }
+
 
 //document.addEventListener("DOMContentLoaded", () => {
 //    const selects = document.querySelectorAll('select[data-log-id]');
@@ -580,40 +582,40 @@ function closeNewScheduleModal() {
     modal.style.display = 'none';
 }
 
-function updateWorkLog(logId, checkInTime, checkOutTime) {
-    fetch(`/update_log_time/${logId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            check_in_time: checkInTime, // Формат "HH:MM"
-            check_out_time: checkOutTime // Формат "HH:MM"
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log(`Log ${logId} updated successfully`);
-
-                // Обновить интерфейс для отображения нового времени
-                const checkInCell = document.querySelector(`#log-${logId} .check-in-time`);
-                const checkOutCell = document.querySelector(`#log-${logId} .check-out-time`);
-                const totalCell = document.querySelector(`#log-${logId} .total-time`);
-
-                if (checkInCell) checkInCell.textContent = checkInTime;
-                if (checkOutCell) checkOutCell.textContent = checkOutTime;
-
-                // Пересчитать total время и обновить в интерфейсе
-                const totalTime = calculateTimeDifference(checkInTime, checkOutTime);
-                if (totalCell) totalCell.textContent = totalTime;
-
-            } else {
-                console.error(`Failed to update log ${logId}:`, data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error updating log:', error);
-        });
-}
+//function updateWorkLog(logId, checkInTime, checkOutTime) {
+//    fetch(`/update_log_time/${logId}`, {
+//        method: 'POST',
+//        headers: { 'Content-Type': 'application/json' },
+//        body: JSON.stringify({
+//            check_in_time: checkInTime, // Формат "HH:MM"
+//            check_out_time: checkOutTime // Формат "HH:MM"
+//        }),
+//    })
+//        .then(response => response.json())
+//        .then(data => {
+//            if (data.success) {
+//                console.log(`Log ${logId} updated successfully`);
+//
+//                // Обновить интерфейс для отображения нового времени
+//                const checkInCell = document.querySelector(`#log-${logId} .check-in-time`);
+//                const checkOutCell = document.querySelector(`#log-${logId} .check-out-time`);
+//                const totalCell = document.querySelector(`#log-${logId} .total-time`);
+//
+//                if (checkInCell) checkInCell.textContent = checkInTime;
+//                if (checkOutCell) checkOutCell.textContent = checkOutTime;
+//
+//                // Пересчитать total время и обновить в интерфейсе
+//                const totalTime = calculateTimeDifference(checkInTime, checkOutTime);
+//                if (totalCell) totalCell.textContent = totalTime;
+//
+//            } else {
+//                console.error(`Failed to update log ${logId}:`, data.message);
+//            }
+//        })
+//        .catch(error => {
+//            console.error('Error updating log:', error);
+//        });
+//}
 
 // Вспомогательная функция для вычисления разницы времени
 function calculateTimeDifference(startTime, endTime) {
@@ -702,41 +704,41 @@ document.addEventListener('click', (event) => {
         modal.style.display = 'none';
     }
 });
-document.addEventListener('DOMContentLoaded', () => {
-    const holidaySelects = document.querySelectorAll('select[data-log-id]');
-
-    // Функция для обновления цвета select
-    function updateSelectBackground(selectElement) {
-        const value = selectElement.value;
-        switch (value) {
-            case 'paid':
-                selectElement.style.backgroundColor = '#FEDB5B'; // Желтый
-                selectElement.style.color = '#000'; // Черный текст
-                break;
-            case 'unpaid':
-                selectElement.style.backgroundColor = '#DD8137'; // Оранжевый
-                selectElement.style.color = '#FFF'; // Белый текст
-                break;
-            case 'weekend':
-                selectElement.style.backgroundColor = '#A6A6A6'; // Серый
-                selectElement.style.color = '#FFF'; // Белый текст
-                break;
-            default: // 'workingday'
-                selectElement.style.backgroundColor = '';
-                selectElement.style.color = '';
-        }
-    }
-
-    // Применяем цвет для всех select при загрузке
-    holidaySelects.forEach(select => updateSelectBackground(select));
-
-    // Добавляем обработчик событий на изменение статуса
-    holidaySelects.forEach(select => {
-        select.addEventListener('change', function () {
-            updateHolidayStatus(this.dataset.logId, this);
-        });
-    });
-});
+//document.addEventListener('DOMContentLoaded', () => {
+//    const holidaySelects = document.querySelectorAll('select[data-log-id]');
+//
+//    // Функция для обновления цвета select
+//    function updateSelectBackground(selectElement) {
+//        const value = selectElement.value;
+//        switch (value) {
+//            case 'paid':
+//                selectElement.style.backgroundColor = '#FEDB5B'; // Желтый
+//                selectElement.style.color = '#000'; // Черный текст
+//                break;
+//            case 'unpaid':
+//                selectElement.style.backgroundColor = '#DD8137'; // Оранжевый
+//                selectElement.style.color = '#FFF'; // Белый текст
+//                break;
+//            case 'weekend':
+//                selectElement.style.backgroundColor = '#A6A6A6'; // Серый
+//                selectElement.style.color = '#FFF'; // Белый текст
+//                break;
+//            default: // 'workingday'
+//                selectElement.style.backgroundColor = '';
+//                selectElement.style.color = '';
+//        }
+//    }
+//
+//    // Применяем цвет для всех select при загрузке
+//    holidaySelects.forEach(select => updateSelectBackground(select));
+//
+//    // Добавляем обработчик событий на изменение статуса
+//    holidaySelects.forEach(select => {
+//        select.addEventListener('change', function () {
+//            updateHolidayStatus(this.dataset.logId, this);
+//        });
+//    });
+//});
 setInterval(() => {
     const selects = document.querySelectorAll('select[data-log-id]');
     selects.forEach(select => {
@@ -775,3 +777,94 @@ function closeFilterModal() {
         modal.classList.add('hidden');
     }
 }
+
+setInterval(() => {
+    updateWorkLogs();
+}, 5000);
+
+// Функция для обновления данных без перезагрузки
+function updateWorkLogs() {
+    const params = new URLSearchParams(window.location.search);
+    fetch(`/work?${params.toString()}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest' // Указываем, что запрос асинхронный
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error('Ошибка обновления данных');
+            }
+        })
+        .then(html => {
+            const container = document.querySelector('.main-container');
+            container.innerHTML = html;
+
+            // Переподключаем все обработчики событий и обновляем интерфейс
+            initializeSelects();
+            recalculateSummary();
+        })
+        .catch(error => {
+            console.error('Ошибка при обновлении логов:', error);
+        });
+}
+
+setInterval(updateWorkLogs, 5000);
+
+
+function initializeSelects() {
+    const holidaySelects = document.querySelectorAll('select[data-log-id]');
+    holidaySelects.forEach(select => {
+        updateSelectBackground(select);
+        select.addEventListener('change', function () {
+            updateHolidayStatus(this.dataset.logId, this);
+            updateSelectBackground(this);
+        });
+    });
+}
+
+function recalculateSummary() {
+    const employees = document.querySelectorAll('.employee-section');
+
+    employees.forEach(employee => {
+        const totalHoursElement = employee.querySelector('.summary-panel p strong + span');
+        const totalDaysElement = employee.querySelector('.summary-panel p:nth-child(2) span');
+        const paidHolidaysElement = employee.querySelector('.summary-panel .badge.yellow');
+        const unpaidHolidaysElement = employee.querySelector('.summary-panel .badge.orange');
+
+        const logs = employee.querySelectorAll('.work-logs-table tbody tr');
+        let totalHours = 0;
+        let totalDays = 0;
+        let paidHolidays = 0;
+        let unpaidHolidays = 0;
+
+        logs.forEach(log => {
+            const workedHours = parseFloat(log.querySelector('.total-time').textContent) || 0;
+            const holidays = log.querySelector('select').value;
+
+            totalHours += workedHours;
+            if (holidays === 'paid') {
+                paidHolidays++;
+            } else if (holidays === 'unpaid') {
+                unpaidHolidays++;
+            } else {
+                totalDays++;
+            }
+        });
+
+        if (totalHoursElement) totalHoursElement.textContent = `${totalHours.toFixed(2)} hours`;
+        if (totalDaysElement) totalDaysElement.textContent = totalDays;
+        if (paidHolidaysElement) paidHolidaysElement.textContent = paidHolidays;
+        if (unpaidHolidaysElement) unpaidHolidaysElement.textContent = unpaidHolidays;
+    });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    initializeSelects();
+    recalculateSummary();
+});
+
+setInterval(updateWorkLogs, 5000);
+
+// Запускаем обновление каждые 5 секунд
+//setInterval(updateWorkLogs, 5000);

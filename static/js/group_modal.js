@@ -9,7 +9,7 @@ function openGroupModal(event) {
         // Position the modal below the button
         modal.style.position = 'absolute';
         modal.style.top = `${rect.bottom + window.scrollY+70}px`; // Below the button
-        modal.style.left = `${rect.left + window.scrollX+90}px`;  // Aligned with the button
+        modal.style.left = `${rect.left + window.scrollX+100}px`;  // Aligned with the button
 
         // Show the modal
         modal.classList.remove('hidden');

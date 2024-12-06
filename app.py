@@ -631,9 +631,9 @@ def work():
     # Если запрос через JavaScript, возвращаем только HTML для логов
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render_template('partials/work_logs.html', employees=employee_logs)
-
-    # Для обычного запроса возвращаем полный HTML
-    return render_template("work.html", employees=employee_logs, today=today)
+    else:
+        return render_template('work.html', employees=employee_logs, today=today)
+    # return render_template("work.html", employees=employee_logs, today=today)
 
 
 @app.route('/update_holiday_status/<int:log_id>', methods=['POST'])
@@ -648,6 +648,10 @@ def update_holiday_status(log_id):
     log = WorkLog.query.get(log_id)
     if not log:
         return jsonify({'success': False, 'message': 'Log not found'}), 404
+
+    employee = Employee.query.get(log.employee_id)
+    if not employee:
+        return jsonify({'success': False, 'message': 'Employee not found'}), 404
 
     log.holidays = status
     if status in ["paid", "unpaid"]:

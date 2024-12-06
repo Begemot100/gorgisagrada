@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 let left = rect.right + 10;
 
                 if (left + modalWidth > viewportWidth) {
-                    left = rect.left - modalWidth - 50; // Смещаем налево, если вылазит за экран
+                    left = rect.left - modalWidth - 30; // Смещаем налево, если вылазит за экран
                 }
 
                 if (top + modalHeight > viewportHeight) {
