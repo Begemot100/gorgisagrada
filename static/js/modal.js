@@ -371,3 +371,183 @@ function applyCustomDateRange() {
     // Скрытие модального окна
     closeFilterModal();
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const editButton = document.getElementById('edit-btn');
+    if (editButton) {
+        console.log('Кнопка "Editar" найдена');
+        editButton.addEventListener('click', handleEditClick);
+    } else {
+        console.error('Кнопка "Editar" не найдена');
+    }
+});
+
+document.getElementById('edit-btn').addEventListener('click', () => {
+    const selectedEmployees = Array.from(document.querySelectorAll('.employee-checkbox:checked'));
+
+    if (selectedEmployees.length === 0) {
+        alert('Выберите хотя бы одного сотрудника.');
+        return;
+    }
+
+    selectedEmployees.forEach(checkbox => {
+        const employeeId = checkbox.id.replace('employee_', '');
+        const logsContainer = document.querySelector(`#logs-container-${employeeId}`);
+        const logCheckboxes = logsContainer.querySelectorAll('.checkbox-cell');
+
+        logCheckboxes.forEach(cell => cell.classList.remove('hidden')); // Показать чекбоксы
+    });
+
+    alert('Выберите запись для редактирования.');
+});
+
+document.addEventListener('change', (event) => {
+    if (event.target.classList.contains('date-checkbox')) {
+        const checkbox = event.target;
+
+        if (checkbox.checked) {
+            const logId = checkbox.id.replace('log-', ''); // Получаем ID лога
+            openEditModal(logId); // Открываем модальное окно редактирования
+        }
+    }
+});
+
+function openEditModal(logId) {
+    const modal = document.getElementById('editTimeModalContainer');
+    modal.style.display = 'block';
+
+    // Запрос на сервер для получения данных лога
+    fetch(`/get_log_details/${logId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('edit-check-in-time').value = data.check_in_time || '';
+            document.getElementById('edit-check-out-time').value = data.check_out_time || '';
+        })
+        .catch(error => {
+            console.error('Ошибка получения данных лога:', error);
+            alert('Не удалось загрузить данные.');
+        });
+
+    // Закрываем модальное окно при клике вне его
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const editButton = document.getElementById('edit-btn');
+    if (editButton) {
+        editButton.addEventListener('click', handleEditClick);
+        console.log('Кнопка "Editar" подключена');
+    } else {
+        console.error('Кнопка "Editar" не найдена');
+    }
+});
+
+
+function handleEditClick() {
+    console.log('Кнопка "Editar" была нажата');
+
+    // Найти выбранные чекбоксы сотрудников
+    const selectedEmployees = Array.from(document.querySelectorAll('.employee-checkbox:checked'));
+    if (selectedEmployees.length === 0) {
+        alert('Выберите сотрудника для редактирования логов.');
+        return;
+    }
+
+    // Показать чекбоксы для логов выбранных сотрудников
+    selectedEmployees.forEach((checkbox) => {
+        const employeeId = checkbox.id.replace('employee_', ''); // Получаем ID сотрудника
+        const logsContainer = document.getElementById(`logs-container-${employeeId}`);
+        const actionButtons = document.getElementById(`action-buttons-${employeeId}`);
+
+        if (logsContainer && actionButtons) {
+            const checkboxCells = logsContainer.querySelectorAll('.checkbox-cell');
+            checkboxCells.forEach(cell => cell.classList.remove('hidden')); // Показываем чекбоксы
+            actionButtons.classList.remove('hidden'); // Показываем кнопки действий
+        } else {
+            console.error(`Логи или кнопки для сотрудника с ID ${employeeId} не найдены`);
+        }
+    });
+
+    alert('Теперь вы можете выбрать логи для редактирования.');
+}
+
+
+
+function saveEditTime() {
+   const logId = document.querySelector('.date-checkbox:checked').id.replace('log-', '');
+   const checkInTime = document.getElementById('edit-check-in-time').value;
+   const checkOutTime = document.getElementById('edit-check-out-time').value;
+
+   fetch(`/edit_log/${logId}`, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ check_in_time: checkInTime, check_out_time: checkOutTime })
+   })
+       .then(response => response.json())
+       .then(data => {
+           if (data.success) {
+               alert('Изменения сохранены.');
+               updateWorkLogs(); // Обновляем данные на странице без перезагрузки
+               closeModal(); // Закрываем модальное окно
+           } else {
+               alert('Ошибка сохранения.');
+           }
+       })
+       .catch(error => {
+           console.error('Ошибка при сохранении:', error);
+           alert('Не удалось сохранить изменения.');
+       });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const editProfileBtn = document.querySelector('.edit-profile-btn');
+    const editProfileModal = document.getElementById('editProfileModal');
+    const closeBtn = editProfileModal.querySelector('.close-btn');
+    const editProfileForm = document.getElementById('editProfileForm');
+
+    // Open the modal when "Edit Profile" button is clicked
+    editProfileBtn.addEventListener('click', () => {
+        editProfileModal.style.display = 'block';
+    });
+
+    // Close the modal when the close button is clicked
+    closeBtn.addEventListener('click', () => {
+        editProfileModal.style.display = 'none';
+    });
+
+    // Close the modal when clicking outside of it
+    window.addEventListener('click', (event) => {
+        if (event.target === editProfileModal) {
+            editProfileModal.style.display = 'none';
+        }
+    });
+
+    // Handle the form submission
+    editProfileForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(editProfileForm);
+
+        // Send the data to the server using fetch
+        fetch('/update_profile', {
+            method: 'POST',
+            body: formData
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                alert('Profile updated successfully!');
+                location.reload(); // Reload the page to reflect changes
+            } else {
+                alert('Error updating profile. Please try again.');
+            }
+        })
+        .catch((error) => {
+            console.error('Error updating profile:', error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+});

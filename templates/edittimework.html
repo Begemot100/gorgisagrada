@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<div id="editTimeModalContainer" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>Редактировать время</h2>
+        <label for="edit-check-in-time">Время начала:</label>
+        <input type="time" id="edit-check-in-time">
+        <label for="edit-check-out-time">Время окончания:</label>
+        <input type="time" id="edit-check-out-time">
+        <button onclick="saveEditTime()">Сохранить</button>
+        <button onclick="closeModal()">Закрыть</button>
+    </div>
+</div>

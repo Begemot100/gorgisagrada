@@ -114,6 +114,17 @@ class WorkLog(db.Model):
             return round(time_diff.total_seconds() / 3600, 2)
         return 0
 
+class Profile(db.Model):
+    __tablename__ = 'profile'
+
+    id = db.Column(db.Integer, primary_key=True)
+    cafe_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    telegram = db.Column(db.String(100), nullable=True)
+    instagram = db.Column(db.String(100), nullable=True)
+
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -909,6 +920,41 @@ def filter_by_group():
     ]
 
     return jsonify(result)
+
+
+from flask import request, jsonify
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    try:
+        # Retrieve data from the request
+        cafe_name = request.form.get('cafe_name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        telegram = request.form.get('telegram')
+        instagram = request.form.get('instagram')
+
+        # Perform validation (if necessary)
+        if not cafe_name or not email or not phone:
+            return jsonify({"success": False, "message": "All required fields must be filled."})
+
+        # Update the database with the new profile information
+        profile = Profile.query.first()  # Update the first record or a specific record
+        if profile:
+            profile.cafe_name = cafe_name
+            profile.email = email
+            profile.phone = phone
+            profile.telegram = telegram
+            profile.instagram = instagram
+            db.session.commit()
+        else:
+            return jsonify({"success": False, "message": "Profile not found."})
+
+        return jsonify({"success": True, "message": "Profile updated successfully!"})
+    except Exception as e:
+        print(f"Error updating profile: {e}")
+        return jsonify({"success": False, "message": "An error occurred while updating the profile."})
+
 
 # Инициализация планировщика
 scheduler = BackgroundScheduler()

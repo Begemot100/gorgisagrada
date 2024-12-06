@@ -237,13 +237,13 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: #f8b400;
+    background-color: #FC8C86;
     color: #fff;
     transition: background-color 0.3s;
 }
 
 .action-buttons button:hover {
-    background-color: #e69a00;
+    background-color: #FC8C86;
 }
 .logs-summary-container {
     display: flex;
