@@ -1,0 +1,31 @@
+.group-modal {
+    display: none;
+    position: absolute; /* Position relative to the button */
+    z-index: 1000; /* Ensure it appears on top */
+}
+
+.group-modal-content {
+    background-color: #fff; /* Фон окна */
+
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 200px;
+}
+
+.group-filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.group-filter-list li {
+    margin-bottom: 10px;
+}
+
+.group-filter-list input[type="checkbox"] {
+    margin-right: 8px;
+}
+.hidden {
+    display: none !important;
+}

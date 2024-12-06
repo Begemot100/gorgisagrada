@@ -549,12 +549,18 @@ import logging
 @app.route('/work', methods=['GET'])
 def work():
     # Получение фильтров из запроса
+    group = request.args.get('group')  # Получаем выбранную группу
     filter_type = request.args.get('filter', 'thismonth')  # Тип фильтра: today, yesterday, last7days, last30days, thismonth, lastmonth
     start_date_str = request.args.get('start_date')  # Пользовательский диапазон
     end_date_str = request.args.get('end_date')
     logging.info(f"Применен фильтр: {filter_type}")
 
+    if group:
+        employees_query = employees_query.filter_by(section=group)
+
     employees = Employee.query.all()
+    for employee in employees:
+        print(f"Employee: {employee.full_name}, Section: {employee.section}")
     today = date.today()
     employee_logs = []
 
@@ -620,7 +626,9 @@ def work():
             'employee': {
                 'id': employee.id,
                 'full_name': employee.full_name,
-                'position': employee.position
+                'position': employee.position,
+                'section': employee.section  # Передаем секцию
+
             },
             'work_logs': [{
                 'id': log.id,
@@ -893,6 +901,25 @@ def export_employees_excel():
 
     # Return the file as a response
     return send_file(file_path, as_attachment=True, download_name="filtered_employees.xlsx")
+
+
+@app.route('/filter_by_group', methods=['POST'])
+def filter_by_group():
+    data = request.get_json()
+    groups = data.get('groups', [])
+
+    employees = Employee.query.filter(Employee.section.in_(groups)).all()
+    result = [
+        {
+            'id': employee.id,
+            'full_name': employee.full_name,
+            'position': employee.position,
+            'group': employee.section
+        }
+        for employee in employees
+    ]
+
+    return jsonify(result)
 
 # Инициализация планировщика
 scheduler = BackgroundScheduler()
