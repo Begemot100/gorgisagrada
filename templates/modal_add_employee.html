@@ -1,0 +1,59 @@
+<div id="employee-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 id="modal-title">New Employee</h2>
+        <form id="employee-form" action="{{ url_for('add_employee') }}" method="POST">
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name" placeholder="Type here" required>
+
+            <label for="nie">NIE</label>
+            <input type="text" id="nie" name="nie" placeholder="Type here" required>
+
+            <label for="start_date">Fecha de contrato</label>
+            <input type="date" id="start_date" name="start_date" required>
+
+            <label for="end_date">Fecha fin de contrato</label>
+            <input type="date" id="end_date" name="end_date">
+
+            <div class="row">
+                <div class="column">
+                    <label for="work_start_time">Inicio del trabajo</label>
+                    <input type="time" id="work_start_time" name="work_start_time" required>
+                </div>
+                <div class="column">
+                    <label for="work_end_time">Fin del trabajo</label>
+                    <input type="time" id="work_end_time" name="work_end_time" required>
+                </div>
+                <div class="column">
+                    <label for="days_per_week">Días/semana</label>
+                    <input type="number" id="days_per_week" name="days_per_week" placeholder="Type here" required>
+                </div>
+            </div>
+
+            <label for="position">Position</label>
+            <select id="position" name="position" required>
+                <option value="Waiter">Waiter</option>
+                <option value="Admin">Admin</option>
+                <option value="Cleaning lady">Cleaning lady</option>
+                <option value="Bartender">Bartender</option>
+            </select>
+            <label for="section">Section</label>
+            <select id="section" name="section" required>
+                <option value="Sala">Sala</option>
+                <option value="Cocina">Cocina</option>
+            </select>
+
+
+            <label for="phone">Phone number</label>
+            <input type="text" id="phone" name="phone" placeholder="Type here" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Type here" required>
+
+            <div class="form-buttons">
+                <button type="button" class="cancel-btn">Cancel</button>
+                <button type="submit" class="save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

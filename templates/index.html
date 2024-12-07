@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Corgi Cafe Logo">
+        </div>
+        <nav>
+            <ul>
+                <li class="centered-block">
+                    <a href="/board">
+                        <img src="{{ url_for('static', filename='images/img_1.png') }}" alt="Work" style="width: 32px; height: 32px;">
+                    </a>
+                </li>
+                <li class="centered-block">
+                    <a href="/dashboard">
+                        <img src="{{ url_for('static', filename='images/img_3.png') }}" alt="Dashboard" style="width: 32px; height: 32px;">
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="logout">
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="cafe-info">
+                <h2>Corgi Cafe Gotico</h2>
+                <p>Plaza de la Vila de Madrid 4</p>
+                <p>Email: info@corgicafe.es</p>
+                <p>Phone: +34 695 279 140</p>
+            </div>
+            <div class="social-media">
+                <p>@corgicafe</p>
+                <p>@corgicafe_bcn</p>
+                <button class="edit-profile-btn">Edit Profile</button>
+            </div>
+        </div>
+
+        <!-- Employee Section -->
+        <div class="employee-section">
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="sala">Sala</button>
+                <button class="filter-btn" data-filter="cocina">Cocina</button>
+                <button class="add-employee-btn" id="open-modal-btn">+ Nuevo empleado</button>
+            </div>
+
+            <div class="employee-list">
+                {% for employee in employees %}
+                <div class="employee-card">
+                    <div class="employee-row">
+                        <span class="employee-item">{{ employee.full_name }}</span>
+                        <span class="employee-item">{{ employee.position }}</span>
+                        <span class="employee-item">{{ employee.nie }}</span>
+
+                        <span class="employee-item">{{ employee.phone }}</span>
+                        <span class="employee-item">{{ employee.email }}</span>
+                        <span class="employee-item">{{ employee.start_date }}</span>
+                        <span class="employee-item">{{ employee.work_start_time }}</span>
+                        <span class="employee-item">{{ employee.work_end_time }}</span>
+                        <button class="options-btn" data-id="{{ employee.id }}">...</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for options -->
+    <div id="options-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-options-modal">&times;</span>
+            <button id="edit-btn" class="save-btn">Editar</button>
+            <button id="delete-btn" class="cancel-btn">Eliminar</button>
+        </div>
+    </div>
+
+    <!-- Include modal -->
+    {% include 'modal_add_employee.html' %}
+    {% include 'editemployee.html' %}
+
+    <!-- Include scripts -->
+    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

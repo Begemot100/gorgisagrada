@@ -1,0 +1,61 @@
+<div id="edit-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="close-edit-modal">&times;</span>
+        <h2 id="edit-modal-title">Edit Employee</h2>
+        <form id="edit-employee-form" action="{{ url_for('edit_employee', id=0) }}" method="POST">
+            <input type="hidden" id="employee-id" name="id">
+
+            <label for="edit-full-name">Full Name</label>
+            <input type="text" id="edit-full-name" name="full_name" placeholder="Type here" required>
+
+            <label for="edit-nie">NIE</label>
+            <input type="text" id="edit-nie" name="nie" placeholder="Type here" required>
+
+            <label for="edit-start-date">Fecha de contrato</label>
+            <input type="date" id="edit-start-date" name="start_date" required>
+
+            <label for="edit-end-date">Fecha fin de contrato</label>
+            <input type="date" id="edit-end-date" name="end_date">
+
+            <div class="row">
+                <div class="column">
+                    <label for="edit-work-start-time">Inicio del trabajo</label>
+                    <input type="time" id="edit-work-start-time" name="work_start_time" required>
+                </div>
+                <div class="column">
+                    <label for="edit-work-end-time">Fin del trabajo</label>
+                    <input type="time" id="edit-work-end-time" name="work_end_time" required>
+                </div>
+                <div class="column">
+                    <label for="edit-days-per-week">Días/semana</label>
+                    <input type="number" id="edit-days-per-week" name="days_per_week" placeholder="Type here" required>
+                </div>
+            </div>
+
+            <label for="edit-position">Position</label>
+            <select id="edit-position" name="position" required>
+                <option value="Waiter">Waiter</option>
+                <option value="Admin">Admin</option>
+                <option value="Cleaning lady">Cleaning lady</option>
+                <option value="Bartender">Bartender</option>
+            </select>
+
+            <label for="edit-section">Section</label>
+            <select id="edit-section" name="section" required>
+                <option value="Sala">Sala</option>
+                <option value="Cocina">Cocina</option>
+            </select>
+
+            <label for="edit-phone">Phone number</label>
+            <input type="text" id="edit-phone" name="phone" placeholder="Type here" required>
+
+            <label for="edit-email">Email</label>
+            <input type="email" id="edit-email" name="email" placeholder="Type here" required>
+
+            <div class="form-buttons">
+                <button type="button" class="cancel-btn" id="cancel-edit-btn">Cancel</button>
+                <button type="submit" class="save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
