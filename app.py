@@ -546,16 +546,7 @@ def board():
 
     return render_template('board.html', dashboard_data=dashboard_data, current_date=today)
 
-from datetime import datetime, date
 
-from flask import request, jsonify
-from datetime import date, datetime, timedelta
-from sqlalchemy import and_
-
-from flask import jsonify, render_template, request
-from datetime import datetime, timedelta, date
-from sqlalchemy import and_
-import logging
 
 
 @app.route('/work', methods=['GET'])
