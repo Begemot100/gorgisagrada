@@ -31,7 +31,7 @@ database_url = os.getenv('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
-# Если DATABASE_URL не задан, используем SQLite для локальной разработки
+
 if not database_url:
     database_url = f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'employees.db')}"
 
