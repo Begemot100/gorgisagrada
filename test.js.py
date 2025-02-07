@@ -8,7 +8,7 @@ from app import Employee
 def work():
     employees = Employee.query.all()
     for employee in employees:
-        print(employee.full_name)  # Отладка
+        print(employee.full_name)  
         for log in employee.work_logs:
             print(log.log_date, log.check_in_time, log.check_out_time)
 
