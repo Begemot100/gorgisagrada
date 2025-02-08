@@ -81,7 +81,7 @@ button {
 }
 
 .check-in-btn.disabled {
-    background-color: #ccc; /* Серый */
+    background-color: #ccc; 
     cursor: not-allowed;
 }
 
@@ -92,7 +92,7 @@ button {
 }
 
 .check-out-btn.disabled {
-    background-color: #ccc; /* Серый */
+    background-color: #ccc; 
     cursor: not-allowed;
 }
 
