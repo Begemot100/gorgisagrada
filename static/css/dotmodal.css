@@ -14,14 +14,14 @@
 /* Modal styling */
 .dot-modal {
     position: absolute;
-    top: 50px; /* Adjust based on button position */
-    right: 10px; /* Adjust to align with the ellipsis button */
+    top: 50px; 
+    right: 10px; 
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 15px;
     z-index: 100;
-    display: none; /* Initially hidden */
+    display: none; 
 }
 
 .dot-modal ul {
